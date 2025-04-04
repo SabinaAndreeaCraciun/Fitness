@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progreso de {{ usuari }}</title>
+</head>
+<body>
+    <h1>Progreso de {{ usuari }}</h1>
+    
+    {% if entrenaments %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Tipo de Entrenamiento</th>
+                <th>Fecha</th>
+                <th>Valor</th>
+                <th>Repeticiones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entrenamiento in entrenaments %}
+            <tr>
+                <td>{{ entrenamiento['tipus'] }}</td>
+                <td>{{ entrenamiento['data'] }}</td>
+                <td>{{ entrenamiento['valor'] }}</td>
+                <td>{{ entrenamiento['repeticions'] if entrenamiento['tipus'] == 'Força' else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No se han registrado entrenamientos para este usuario.</p>
+    {% endif %}
+    
+    <br>
+    <a href="/">Volver al inicio</a>
+</body>
+</html>

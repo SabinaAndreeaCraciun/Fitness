@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Principal - Entrenamientos</title>
+</head>
+<body>
+    <h1>Agregar Entrenamiento</h1>
+    
+    <!-- Formulario para agregar un entrenamiento -->
+    <form action="/" method="POST">
+        <label for="usuari">Usuario:</label>
+        <input type="text" id="usuari" name="usuari" required><br>
+
+        <label for="tipus">Tipo de Entrenamiento:</label>
+        <select id="tipus" name="tipus" required>
+            <option value="Cardio">Cardio</option>
+            <option value="Força">Fuerza</option>
+        </select><br>
+
+        <label for="valor">Valor:</label>
+        <input type="number" id="valor" name="valor" step="0.1" required><br>
+
+        <div id="forca-repeticions" style="display:none;">
+            <label for="repeticions">Repeticiones:</label>
+            <input type="number" id="repeticions" name="repeticions"><br>
+        </div>
+
+        <button type="submit">Añadir Entrenamiento</button>
+    </form>
+
+    <br><br>
+    
+    <!-- Enlace para ver el progreso -->
+    <h2>Ver Progreso de Usuario</h2>
+    <form action="/user_progress" method="get">
+        <label for="usuari">Introduce tu nombre de usuario para ver el progreso:</label>
+        <input type="text" id="usuari" name="usuari" required>
+        <button type="submit">Ver progreso</button>
+    </form>
+
+    <!-- Mostrar error si ocurre -->
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    
+    <script>
+        // Mostrar el campo de repeticiones solo cuando se elige "Força"
+        document.getElementById('tipus').addEventListener('change', function() {
+            if (this.value === 'Força') {
+                document.getElementById('forca-repeticions').style.display = 'block';
+            } else {
+                document.getElementById('forca-repeticions').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
