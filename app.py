@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 app = Flask(__name__)
-
+fffwfw
 # Función para guardar los entrenamientos en el archivo CSV
 def guardar_entrenament(entrenament):
     try:
