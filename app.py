@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
+from maria import connect_db  # Importamos la función de conexión desde maria.py
 import csv
 import matplotlib.pyplot as plt
 from datetime import datetime
 
 app = Flask(__name__)
-fffwfw
+
 # Función para guardar los entrenamientos en el archivo CSV
 def guardar_entrenament(entrenament):
     try:
@@ -58,6 +59,30 @@ class Forca(Entrenament):
     
     def to_list(self):
         return [self.usuari, self.tipus, self.data, self.valor, self.repeticions]
+
+# Ruta para el registro de usuario
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        nombre = request.form['nombre']  # Obtener el nombre del formulario
+        email = request.form['email']  # Obtener el email del formulario
+        
+        # Conectar a la base de datos
+        try:
+            conn = connect_db()  # Conectamos a la base de datos usando la función de maria.py
+            cursor = conn.cursor()
+            
+            # Ejecutamos el INSERT en la base de datos
+            cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", (nombre, email))
+            conn.commit()  # Confirmar los cambios en la base de datos
+            cursor.close()
+            conn.close()
+            
+            return redirect(url_for('index'))  # Redirigir a la página principal después de registrar el usuario
+        except Exception as e:
+            return render_template("register.html", error=f"Error al registrar el usuario: {e}")
+    
+    return render_template("register.html")
 
 # Ruta principal (index) para agregar entrenamientos
 @app.route('/', methods=['GET', 'POST'])
