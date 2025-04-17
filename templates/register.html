@@ -1,37 +1,32 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrarse</title>
+    <title>Registro</title>
 </head>
 <body>
     <h1>Registrarse</h1>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+        <label>Nombre:</label><br>
+        <input type="text" name="nom" required><br>
 
-    <!-- Formulario de registro -->
-    <form action="/register" method="POST">
-        <label for="nom">Nombre de Usuario:</label>
-        <input type="text" id="nom" name="nom" required><br><br>
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
+        <label>Contraseña:</label><br>
+        <input type="password" name="contrasenya" required><br>
 
-        <label for="contrasenya">Contraseña:</label>
-        <input type="password" id="contrasenya" name="contrasenya" required><br><br>
-
-        <label for="nivell">Nivel:</label>
-        <select id="nivell" name="nivell" required>
-            <option value="principiante">Principiante</option>
-            <option value="intermedio">Intermedio</option>
-            <option value="avanzado">Avanzado</option>
+        <label>Nivel:</label><br>
+        <select name="nivell">
+            <option>Principiante</option>
+            <option>Intermedio</option>
+            <option>Avanzado</option>
         </select><br><br>
 
         <button type="submit">Registrarse</button>
     </form>
-
-    <!-- Mostrar error si ocurre -->
-    {% if error %}
-    <p style="color: red;">{{ error }}</p>
-    {% endif %}
+    <p>¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión aquí</a></p>
 </body>
 </html>

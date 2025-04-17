@@ -1,102 +1,53 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Principal - Entrenamientos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .form-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-        .btn {
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            margin: 10px 0;
-            display: inline-block;
-            text-align: center;
-            width: 100%;
-        }
-        .btn-login {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-register {
-            background-color: #28a745;
-            color: white;
-        }
-        .btn:hover {
-            opacity: 0.8;
-        }
-    </style>
+    <title>Entrenamientos</title>
 </head>
 <body>
+    <h1>Registro de entrenamientos</h1>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+        <label>Nombre de usuario:</label><br>
+        <input type="text" name="usuari" required><br>
 
-    <!-- Títulos y enlaces para login y registro -->
-    <h1>Agregar Entrenamiento</h1>
-    <a href="/login" class="btn btn-login">Iniciar sesión</a>
-    <a href="/register" class="btn btn-register">Registrarse</a>
+        <label>Tipo:</label><br>
+        <select name="tipus" required onchange="toggleReps(this.value)">
+            <option value="Cardio">Cardio</option>
+            <option value="Força">Força</option>
+        </select><br>
 
-    <!-- Formulario para agregar un entrenamiento -->
-    <div class="form-container">
-        <form action="/" method="POST">
-            <label for="usuari">Usuario:</label>
-            <input type="text" id="usuari" name="usuari" required><br><br>
+        <label>Valor (km o kg):</label><br>
+        <input type="number" name="valor" step="0.01" required><br>
 
-            <label for="tipus">Tipo de Entrenamiento:</label>
-            <select id="tipus" name="tipus" required>
-                <option value="Cardio">Cardio</option>
-                <option value="Força">Fuerza</option>
-            </select><br><br>
+        <div id="repsField" style="display: none;">
+            <label>Repeticiones:</label><br>
+            <input type="number" name="repeticions" min="1"><br>
+        </div><br>
 
-            <label for="valor">Valor:</label>
-            <input type="number" id="valor" name="valor" step="0.1" required><br><br>
-
-            <!-- Campo de repeticiones para "Força" -->
-            <div id="forca-repeticions" style="display:none;">
-                <label for="repeticions">Repeticiones:</label>
-                <input type="number" id="repeticions" name="repeticions"><br><br>
-            </div>
-
-            <button type="submit">Añadir Entrenamiento</button>
-        </form>
-    </div>
-
-    <!-- Formulario para ver el progreso -->
-    <h2>Ver Progreso de Usuario</h2>
-    <form action="/user_progress" method="get">
-        <label for="usuari">Introduce tu nombre de usuario para ver el progreso:</label>
-        <input type="text" id="usuari" name="usuari" required>
-        <button type="submit">Ver progreso</button>
+        <button type="submit">Guardar entrenamiento</button>
     </form>
 
-    <!-- Mostrar error si ocurre -->
-    {% if error %}
-    <p style="color: red;">{{ error }}</p>
+    <hr>
+
+    <h2>Rutinas guardadas:</h2>
+    {% if rutines %}
+        <ul>
+        {% for rutina in rutines %}
+            <li><strong>{{ rutina[0] }}</strong>: {{ rutina[1] }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay rutinas registradas.</p>
     {% endif %}
 
+    <p><a href="{{ url_for('crear_rutina') }}">Crear nueva rutina</a> | 
+      
     <script>
-        // Mostrar el campo de repeticiones solo cuando se elige "Força"
-        document.getElementById('tipus').addEventListener('change', function() {
-            if (this.value === 'Força') {
-                document.getElementById('forca-repeticions').style.display = 'block';
-            } else {
-                document.getElementById('forca-repeticions').style.display = 'none';
-            }
-        });
+        function toggleReps(value) {
+            document.getElementById('repsField').style.display = value === 'Força' ? 'block' : 'none';
+        }
     </script>
-
 </body>
 </html>

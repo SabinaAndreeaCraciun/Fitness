@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Rutinas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Crear Rutina</h2>
+        <form action="{{ url_for('crear_rutina') }}" method="POST">
+            <!-- Selección de usuario -->
+            <div class="form-group">
+                <label for="usuari">Selecciona un Usuario</label>
+                <select class="form-control" id="usuari" name="usuari" required>
+                    <option value="" disabled selected>Selecciona un usuario</option>
+                    {% for usuari in usuaris %}
+                        <option value="{{ usuari[0] }}">{{ usuari[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Selección de ejercicio -->
+            <div class="form-group">
+                <label for="exercici">Selecciona un Ejercicio</label>
+                <select class="form-control" id="exercici" name="exercici" required>
+                    <option value="" disabled selected>Selecciona un ejercicio</option>
+                    {% for exercici in exercicis %}
+                        <option value="{{ exercici[0] }}">{{ exercici[1] }} ({{ exercici[2] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Número de series -->
+            <div class="form-group">
+                <label for="series">Número de Series</label>
+                <input type="number" class="form-control" id="series" name="series" min="1" required>
+            </div>
+
+            <!-- Número de repeticiones -->
+            <div class="form-group">
+                <label for="repeticions">Número de Repeticiones</label>
+                <input type="number" class="form-control" id="repeticions" name="repeticions" min="1" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Crear Rutina</button>
+        </form>
+    </div>
+
+    <!-- Scripts de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

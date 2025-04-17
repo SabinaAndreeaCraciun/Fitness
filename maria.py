@@ -39,9 +39,9 @@ def register_user(nom, email, contrasenya, nivell):
     except mariadb.Error as e:
         print(f"❌ Error al registrar el usuario: {e}")
         conn.rollback()  # Revertir cambios si hay un error
-
-    cursor.close()
-    conn.close()
+    finally:
+        cursor.close()
+        conn.close()
 
 # Función para verificar la contraseña de un usuario
 def verify_password(email, contrasenya):
@@ -107,6 +107,67 @@ def get_all_users():
         return users
     except mariadb.Error as e:
         print(f"❌ Error al obtener los usuarios: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
+
+# ---------------------------------
+# Funciones relacionadas con rutinas
+# ---------------------------------
+
+# Función para agregar una rutina
+def add_routine(usuari_id, exercici_id, series, repeticions):
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        # Insertar una nueva rutina para un usuario
+        cursor.execute("INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
+                       (usuari_id, exercici_id, series, repeticions))
+        conn.commit()
+        print(f"✅ Rutina agregada para el usuario con ID: {usuari_id}")
+    except mariadb.Error as e:
+        print(f"❌ Error al agregar la rutina: {e}")
+        conn.rollback()  # Revertir cambios si hay un error
+    finally:
+        cursor.close()
+        conn.close()
+
+# Función para obtener las rutinas de un usuario
+def get_user_routines(usuari_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        # Obtener todas las rutinas de un usuario
+        cursor.execute("""
+            SELECT e.nom, r.series, r.repeticions
+            FROM rutines r
+            JOIN exercicis e ON r.exercici_id = e.id
+            WHERE r.usuari_id = %s
+        """, (usuari_id,))
+        routines = cursor.fetchall()
+        return routines
+    except mariadb.Error as e:
+        print(f"❌ Error al obtener las rutinas: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
+
+# Función para obtener todos los ejercicios disponibles
+def get_all_exercises():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        # Obtener todos los ejercicios disponibles
+        cursor.execute("SELECT id, nom FROM exercicis")
+        exercises = cursor.fetchall()
+        return exercises
+    except mariadb.Error as e:
+        print(f"❌ Error al obtener los ejercicios: {e}")
         return []
     finally:
         cursor.close()
