@@ -4,35 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal - Entrenamientos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .btn {
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 10px 0;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+        }
+        .btn-login {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-register {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Títulos y enlaces para login y registro -->
     <h1>Agregar Entrenamiento</h1>
-    
+    <a href="/login" class="btn btn-login">Iniciar sesión</a>
+    <a href="/register" class="btn btn-register">Registrarse</a>
+
     <!-- Formulario para agregar un entrenamiento -->
-    <form action="/" method="POST">
-        <label for="usuari">Usuario:</label>
-        <input type="text" id="usuari" name="usuari" required><br>
+    <div class="form-container">
+        <form action="/" method="POST">
+            <label for="usuari">Usuario:</label>
+            <input type="text" id="usuari" name="usuari" required><br><br>
 
-        <label for="tipus">Tipo de Entrenamiento:</label>
-        <select id="tipus" name="tipus" required>
-            <option value="Cardio">Cardio</option>
-            <option value="Força">Fuerza</option>
-        </select><br>
+            <label for="tipus">Tipo de Entrenamiento:</label>
+            <select id="tipus" name="tipus" required>
+                <option value="Cardio">Cardio</option>
+                <option value="Força">Fuerza</option>
+            </select><br><br>
 
-        <label for="valor">Valor:</label>
-        <input type="number" id="valor" name="valor" step="0.1" required><br>
+            <label for="valor">Valor:</label>
+            <input type="number" id="valor" name="valor" step="0.1" required><br><br>
 
-        <div id="forca-repeticions" style="display:none;">
-            <label for="repeticions">Repeticiones:</label>
-            <input type="number" id="repeticions" name="repeticions"><br>
-        </div>
+            <!-- Campo de repeticiones para "Força" -->
+            <div id="forca-repeticions" style="display:none;">
+                <label for="repeticions">Repeticiones:</label>
+                <input type="number" id="repeticions" name="repeticions"><br><br>
+            </div>
 
-        <button type="submit">Añadir Entrenamiento</button>
-    </form>
+            <button type="submit">Añadir Entrenamiento</button>
+        </form>
+    </div>
 
-    <br><br>
-    
-    <!-- Enlace para ver el progreso -->
+    <!-- Formulario para ver el progreso -->
     <h2>Ver Progreso de Usuario</h2>
     <form action="/user_progress" method="get">
         <label for="usuari">Introduce tu nombre de usuario para ver el progreso:</label>
@@ -44,7 +86,7 @@
     {% if error %}
     <p style="color: red;">{{ error }}</p>
     {% endif %}
-    
+
     <script>
         // Mostrar el campo de repeticiones solo cuando se elige "Força"
         document.getElementById('tipus').addEventListener('change', function() {
@@ -55,5 +97,6 @@
             }
         });
     </script>
+
 </body>
 </html>

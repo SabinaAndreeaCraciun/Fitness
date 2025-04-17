@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 from maria import connect_db  # Importamos la función de conexión desde maria.py
+import bcrypt
 import csv
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -61,28 +62,75 @@ class Forca(Entrenament):
         return [self.usuari, self.tipus, self.data, self.valor, self.repeticions]
 
 # Ruta para el registro de usuario
-@app.route('/register', methods=['GET', 'POST'])
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == 'POST':
-        nombre = request.form['nombre']  # Obtener el nombre del formulario
-        email = request.form['email']  # Obtener el email del formulario
-        
+    if request.method == "POST":
+        nombre_usuario = request.form["nom"]
+        email = request.form["email"]
+        contrasenya = request.form["contrasenya"]
+        nivell = request.form["nivell"]
+
+        # Encriptar la contraseña
+        hashed_contrasenya = bcrypt.hashpw(contrasenya.encode('utf-8'), bcrypt.gensalt())
+
         # Conectar a la base de datos
+        conn = connect_db()
+        cursor = conn.cursor()
+
         try:
-            conn = connect_db()  # Conectamos a la base de datos usando la función de maria.py
-            cursor = conn.cursor()
-            
-            # Ejecutamos el INSERT en la base de datos
-            cursor.execute("INSERT INTO users (name, email) VALUES (%s, %s)", (nombre, email))
-            conn.commit()  # Confirmar los cambios en la base de datos
+            # Intentar insertar los datos en la base de datos
+            cursor.execute(
+                "INSERT INTO usuaris (nom, email, contrasenya, nivell) VALUES (%s, %s, %s, %s)",
+                (nombre_usuario, email, hashed_contrasenya, nivell)
+            )
+            conn.commit()
+            return redirect(url_for("login"))  # Redirigir al login después del registro
+        except Exception as e:
+            print(f"Error al registrar el usuario: {e}")  # Imprimir el error en la consola
+            conn.rollback()  # Revertir los cambios si ocurre un error
+            return render_template("register.html", error="Hubo un error al registrar el usuario.")  # Mostrar mensaje de error
+        finally:
             cursor.close()
             conn.close()
-            
-            return redirect(url_for('index'))  # Redirigir a la página principal después de registrar el usuario
+
+    return render_template("register.html")  # Si es una solicitud GET, muestra el formulario de registro
+
+
+# Ruta de login para verificar el usuario
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        nombre_usuario = request.form["nom"]
+        email = request.form["email"]
+        contrasenya = request.form["contrasenya"]
+
+        # Conectar a la base de datos
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        try:
+            # Consultar la contraseña en la base de datos
+            cursor.execute("SELECT contrasenya FROM usuaris WHERE nom = %s AND email = %s", 
+                           (nombre_usuario, email))
+            result = cursor.fetchone()
+
+            # Si la contraseña es correcta
+            if result and bcrypt.checkpw(contrasenya.encode('utf-8'), result[0].encode('utf-8')):
+                return redirect(url_for("index"))  # Redirigir a la página principal (index) si el login es exitoso
+            else:
+                # Si las credenciales son incorrectas
+                return render_template("login.html", error="Nombre de usuario, email o contraseña incorrectos")
         except Exception as e:
-            return render_template("register.html", error=f"Error al registrar el usuario: {e}")
-    
-    return render_template("register.html")
+            # En caso de error con la base de datos
+            return render_template("login.html", error="Hubo un error al intentar iniciar sesión.")
+        finally:
+            cursor.close()
+            conn.close()
+
+    return render_template("login.html")  # Si es una solicitud GET, muestra el formulario de login
+
+
+
 
 # Ruta principal (index) para agregar entrenamientos
 @app.route('/', methods=['GET', 'POST'])
