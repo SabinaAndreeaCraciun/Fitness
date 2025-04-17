@@ -84,7 +84,7 @@ class Usuari:
 
 
 # --------------------------
-# Clase Entrenament y subclases
+# Clases Entrenament y Subclases
 # --------------------------
 
 class Entrenament:
@@ -162,24 +162,72 @@ def crear_rutina():
         return render_template("crear_rutina.html", usuaris=usuaris, exercicis=exercicis)
 
     elif request.method == "POST":
-        usuari_id = request.form['usuari']
-        exercici_id = request.form['exercici']
+        # Obtener los datos del formulario
+        usuari_nom = request.form['usuari']
+        exercici_nom = request.form['exercici']
         series = int(request.form['series'])
         repeticions = int(request.form['repeticions'])
 
-        # Guardar la rutina en la base de datos
+        # Buscar el ID del usuario por nombre
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
-            (usuari_id, exercici_id, series, repeticions)
-        )
-        conn.commit()
+
+        # Buscar el ID del usuario por nombre
+        cursor.execute("SELECT id FROM usuaris WHERE nom = %s", (usuari_nom,))
+        usuari_id = cursor.fetchone()
+
+        # Buscar el ID del ejercicio por nombre
+        cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nom,))
+        exercici_id = cursor.fetchone()
+
+        # Si se encuentra el usuario y el ejercicio
+        if usuari_id and exercici_id:
+            # Guardar la rutina en la base de datos
+            cursor.execute(
+                "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
+                (usuari_id[0], exercici_id[0], series, repeticions)
+            )
+            conn.commit()
+
+            # Redirigir a la página de inicio o donde desees
+            return redirect(url_for("index"))
+
+        else:
+            # Si no se encuentran el usuario o el ejercicio, redirigir con un error en la URL
+            return redirect(url_for("crear_rutina", error="Usuario o ejercicio no encontrados"))
+
         cursor.close()
         conn.close()
 
-        # Redirigir a la página de inicio o a donde desees
-        return redirect(url_for("index"))
+
+@app.route("/rutinas")
+def rutinas():
+    # Verificar que el usuario esté autenticado
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+
+    user_id = session['user_id']
+    user_name = session['user_name']  # Obtener el nombre desde la sesión
+
+    # Conectar a la base de datos
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # Obtener las rutinas del usuario actual
+    cursor.execute("""
+        SELECT r.id, e.nom, r.series, r.repeticions 
+        FROM rutines r
+        JOIN exercicis e ON r.exercici_id = e.id
+        WHERE r.usuari_id = %s
+    """, (user_id,))
+    rutinas = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("rutinas.html", rutinas=rutinas, user_name=user_name)
+
+
 
 
 # --------------------------
@@ -208,33 +256,36 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form["email"]
-        contrasenya = request.form["contrasenya"]
+        nom = request.form["nom"]  # Obtener el nombre del formulario
+        contrasenya = request.form["contrasenya"]  # Obtener la contraseña del formulario
 
-        if Usuari.verificar(email, contrasenya):
-            session["user_id"] = Usuari.obtenir_id(email)
-            return redirect(url_for("home"))
+        # Verificar si el nombre y la contraseña coinciden en la base de datos
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, contrasenya FROM usuaris WHERE nom = %s", (nom,))
+        resultado = cursor.fetchone()
+        
+        if resultado:
+            user_id, contrasenya_guardada = resultado
+            if bcrypt.checkpw(contrasenya.encode('utf-8'), contrasenya_guardada.encode('utf-8')):
+                # Guardar el ID y nombre del usuario en la sesión
+                session["user_id"] = user_id
+                session["user_name"] = nom  # Guardar el nombre del usuario en la sesión
+                cursor.close()
+                conn.close()
+                return redirect(url_for("rutinas"))  # Redirigir a la página de rutinas del usuario
+            else:
+                cursor.close()
+                conn.close()
+                return render_template("login.html", error="Contraseña incorrecta.")
         else:
-            return render_template("login.html", error="Credenciales incorrectas.")
+            cursor.close()
+            conn.close()
+            return render_template("login.html", error="Nombre de usuario no encontrado.")
+    
     return render_template("login.html")
 
-@app.route("/entrenament", methods=["POST"])
-def entrenament():
-    usuari = request.form['usuari']
-    tipus = request.form['tipus']
-    valor = float(request.form['valor'])
-    data = datetime.now().strftime("%Y-%m-%d")
 
-    if tipus == "Cardio":
-        entrenament = Cardio(usuari, data, valor)
-    elif tipus == "Força":
-        repeticions = int(request.form['repeticions'])
-        entrenament = Forca(usuari, data, valor, repeticions)
-    else:
-        return redirect(url_for("home"))
-
-    guardar_entrenament(entrenament)
-    return redirect(url_for("home"))
 
 @app.route("/progress/<usuari>")
 def progress(usuari):

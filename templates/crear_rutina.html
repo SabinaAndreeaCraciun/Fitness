@@ -3,33 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Rutinas</title>
+    <title>Crear Rutina</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
         <h2>Crear Rutina</h2>
+
+        {% if request.args.get('error') %}
+            <div class="alert alert-danger">
+                {{ request.args.get('error') }}
+            </div>
+        {% endif %}
+
         <form action="{{ url_for('crear_rutina') }}" method="POST">
             <!-- Selección de usuario -->
             <div class="form-group">
                 <label for="usuari">Selecciona un Usuario</label>
-                <select class="form-control" id="usuari" name="usuari" required>
-                    <option value="" disabled selected>Selecciona un usuario</option>
-                    {% for usuari in usuaris %}
-                        <option value="{{ usuari[0] }}">{{ usuari[1] }}</option>
-                    {% endfor %}
+                <input type="text" class="form-control" id="usuari" name="usuari" required>
+            </div>
+
+            <!-- Tipo de ejercicio -->
+            <div class="form-group">
+                <label for="tipo">Tipo de Ejercicio</label>
+                <select class="form-control" id="tipo" name="tipo" required>
+                    <option value="">Selecciona una opción</option>
+                    <option value="Cardio">Cardio</option>
+                    <option value="Fuerza">Fuerza</option>
                 </select>
             </div>
 
-            <!-- Selección de ejercicio -->
+            <!-- Nombre del ejercicio -->
             <div class="form-group">
-                <label for="exercici">Selecciona un Ejercicio</label>
-                <select class="form-control" id="exercici" name="exercici" required>
-                    <option value="" disabled selected>Selecciona un ejercicio</option>
-                    {% for exercici in exercicis %}
-                        <option value="{{ exercici[0] }}">{{ exercici[1] }} ({{ exercici[2] }})</option>
-                    {% endfor %}
-                </select>
+                <label for="exercici">Nombre del Ejercicio</label>
+                <input type="text" class="form-control" id="exercici" name="exercici" placeholder="Ej: Correr, Sentadillas, etc." required>
             </div>
 
             <!-- Número de series -->

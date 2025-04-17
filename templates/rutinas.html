@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rutinas del Usuario</title>
+</head>
+<body>
+    <h1>Bienvenido, {{ user_name }}!</h1>  <!-- Mostrar el nombre del usuario -->
+    
+    <h2>Mis Rutinas</h2>
+    <table>
+        <tr>
+            <th>Ejercicio</th>
+            <th>Series</th>
+            <th>Repeticiones</th>
+        </tr>
+        {% for rutina in rutinas %}
+            <tr>
+                <td>{{ rutina[1] }}</td>  <!-- Nombre del ejercicio -->
+                <td>{{ rutina[2] }}</td>  <!-- Número de series -->
+                <td>{{ rutina[3] }}</td>  <!-- Número de repeticiones -->
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
