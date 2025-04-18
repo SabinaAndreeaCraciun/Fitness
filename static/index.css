@@ -1,0 +1,189 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilo general del body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    justify-content: flex-start;
+}
+
+/* Barra de navegación */
+header {
+    width: 100%;
+    background-color: #333;
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.navbar .logo {
+    color: #fff;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+}
+
+.navbar ul li {
+    margin-left: 25px;
+}
+
+.navbar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar ul li a:hover {
+    color: #3498db;
+    transform: translateY(-3px);
+}
+
+.navbar .btn-login, .navbar .btn-logout {
+    background-color: #3498db;
+    padding: 8px 20px;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.navbar .btn-login:hover, .navbar .btn-logout:hover {
+    background-color: #2980b9;
+}
+
+/* Sección de bienvenida */
+.welcome-section {
+    text-align: center;
+    margin-top: 100px;
+    padding: 40px 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+.welcome-section h1 {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.welcome-section p {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* Sección de opciones */
+.options-section {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.options-section h2 {
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.option-links {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+}
+
+.option-links a {
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    text-align: center;
+}
+
+.option-links .btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.option-links .btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
+}
+
+.option-links .btn-secondary {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.option-links .btn-secondary:hover {
+    background-color: #27ae60;
+    transform: translateY(-3px);
+}
+
+.option-links .btn-tertiary {
+    background-color: #f39c12;
+    color: white;
+}
+
+.option-links .btn-tertiary:hover {
+    background-color: #e67e22;
+    transform: translateY(-3px);
+}
+
+/* Mejorar la legibilidad y la organización del diseño */
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 1;
+    padding: 0 20px;
+    max-width: 1200px;
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .option-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

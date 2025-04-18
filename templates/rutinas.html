@@ -4,24 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Rutinas</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='rutinas.css') }}">
 </head>
 <body>
 
-    <div class="container mt-5">
-        <h2 class="text-center">Mis Rutinas</h2>
-        
-        <!-- Mostrar mensaje si hay errores -->
+    <!-- Encabezado -->
+    <header class="navbar">
+        <div class="logo">FitnessApp</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
+                <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Progreso</a></li>
+                {% if session.get('user_id') %}
+                    <li><a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Iniciar sesión</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="container">
+        <h2>Mis Rutinas</h2>
+
         {% if request.args.get('error') %}
-            <div class="alert alert-danger">
+            <div class="alert">
                 {{ request.args.get('error') }}
             </div>
         {% endif %}
-        
-        <!-- Tabla de Rutinas -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="thead-dark">
+
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
                         <th>Ejercicio</th>
                         <th>Series</th>
@@ -31,25 +46,19 @@
                 <tbody>
                     {% for rutina in rutinas %}
                         <tr>
-                            <td>{{ rutina[1] }}</td>  <!-- Nombre del ejercicio -->
-                            <td>{{ rutina[2] }}</td>  <!-- Número de series -->
-                            <td>{{ rutina[3] }}</td>  <!-- Número de repeticiones -->
+                            <td>{{ rutina[1] }}</td>
+                            <td>{{ rutina[2] }}</td>
+                            <td>{{ rutina[3] }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <!-- Botón para volver al inicio -->
-        <div class="text-center">
-            <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Volver al inicio</a>
+        <div class="btn-center">
+            <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
         </div>
-    </div>
-
-    <!-- Scripts de Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </main>
 
 </body>
 </html>

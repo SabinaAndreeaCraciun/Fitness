@@ -4,60 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Rutina</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='crear_rutina.css') }}">
 </head>
 <body>
-    <div class="container mt-5">
-        <h2>Crear Rutina</h2>
+    <!-- Barra de navegación -->
+    <header>
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
+            <ul>
+                <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
+                <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
+                <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Ver Progreso</a></li>
 
-        {% if request.args.get('error') %}
-            <div class="alert alert-danger">
-                {{ request.args.get('error') }}
-            </div>
-        {% endif %}
+                <!-- Si el usuario está autenticado, muestra la opción de cerrar sesión -->
+                {% if session.get('user_id') %}
+                    <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn-login">Iniciar sesión</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
 
-        <form action="{{ url_for('crear_rutina') }}" method="POST">
-            <!-- Selección de usuario -->
-            <div class="form-group">
-                <label for="usuari">Selecciona un Usuario</label>
-                <input type="text" class="form-control" id="usuari" name="usuari" required>
-            </div>
+    <!-- Contenido principal -->
+    <main>
+        <section class="form-section">
+            <h1>Crear una nueva rutina</h1>
 
-            <!-- Tipo de ejercicio -->
-            <div class="form-group">
-                <label for="tipo">Tipo de Ejercicio</label>
-                <select class="form-control" id="tipo" name="tipo" required>
-                    <option value="">Selecciona una opción</option>
-                    <option value="Cardio">Cardio</option>
-                    <option value="Fuerza">Fuerza</option>
-                </select>
-            </div>
+            {% if request.args.get('error') %}
+                <p class="error-message">{{ request.args.get('error') }}</p>
+            {% endif %}
 
-            <!-- Nombre del ejercicio -->
-            <div class="form-group">
-                <label for="exercici">Nombre del Ejercicio</label>
-                <input type="text" class="form-control" id="exercici" name="exercici" placeholder="Ej: Correr, Sentadillas, etc." required>
-            </div>
+            <form action="{{ url_for('crear_rutina') }}" method="POST" class="form-create-routine">
+                <!-- Selección de usuario -->
+                <div class="form-group">
+                    <label for="usuari">Selecciona un Usuario:</label>
+                    <input type="text" id="usuari" name="usuari" required>
+                </div>
 
-            <!-- Número de series -->
-            <div class="form-group">
-                <label for="series">Número de Series</label>
-                <input type="number" class="form-control" id="series" name="series" min="1" required>
-            </div>
+                <!-- Tipo de ejercicio -->
+                <div class="form-group">
+                    <label for="tipo">Tipo de Ejercicio:</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="">Selecciona una opción</option>
+                        <option value="Cardio">Cardio</option>
+                        <option value="Fuerza">Fuerza</option>
+                    </select>
+                </div>
 
-            <!-- Número de repeticiones -->
-            <div class="form-group">
-                <label for="repeticions">Número de Repeticiones</label>
-                <input type="number" class="form-control" id="repeticions" name="repeticions" min="1" required>
-            </div>
+                <!-- Nombre del ejercicio -->
+                <div class="form-group">
+                    <label for="exercici">Nombre del Ejercicio:</label>
+                    <input type="text" id="exercici" name="exercici" placeholder="Ej: Correr, Sentadillas, etc." required>
+                </div>
 
-            <button type="submit" class="btn btn-primary">Crear Rutina</button>
-        </form>
-    </div>
+                <!-- Número de series -->
+                <div class="form-group">
+                    <label for="series">Número de Series:</label>
+                    <input type="number" id="series" name="series" min="1" required>
+                </div>
 
-    <!-- Scripts de Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                <!-- Número de repeticiones -->
+                <div class="form-group">
+                    <label for="repeticions">Número de Repeticiones:</label>
+                    <input type="number" id="repeticions" name="repeticions" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn-submit">Crear Rutina</button>
+                </div>
+            </form>
+
+            <p><a href="{{ url_for('index') }}" class="btn-back">Volver al inicio</a></p>
+        </section>
+    </main>
 </body>
 </html>
