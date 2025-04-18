@@ -229,14 +229,19 @@ def rutinas():
 
 
 
-
 # --------------------------
 # Rutas adicionales
 # --------------------------
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    # Si no hay sesión de usuario activa, redirige a login
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # Si la sesión está activa, redirige a la página principal
+    return render_template("index.html", user_name=session['user_name'])
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -273,7 +278,10 @@ def login():
                 session["user_name"] = nom  # Guardar el nombre del usuario en la sesión
                 cursor.close()
                 conn.close()
-                return redirect(url_for("rutinas"))  # Redirigir a la página de rutinas del usuario
+
+                # Redirigir a la página de inicio (index.html) después de iniciar sesión
+                return redirect(url_for("index"))  # Redirige al index
+
             else:
                 cursor.close()
                 conn.close()
@@ -285,6 +293,12 @@ def login():
     
     return render_template("login.html")
 
+@app.route("/logout")
+def logout():
+    session.clear()  # Limpia la sesión
+    return redirect(url_for("login"))  # Redirige a la página de inicio
+
+    
 
 
 @app.route("/progress/<usuari>")

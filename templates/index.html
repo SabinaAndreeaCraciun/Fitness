@@ -1,53 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Entrenamientos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación de Fitness</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> <!-- Si tienes un archivo de estilo CSS -->
 </head>
 <body>
-    <h1>Registro de entrenamientos</h1>
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-    <form method="POST">
-        <label>Nombre de usuario:</label><br>
-        <input type="text" name="usuari" required><br>
+    <!-- Barra de navegación -->
+    <header>
+        <nav>
+            <div class="navbar">
+                <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
+                <ul>
+                    <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
+                    <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
+                    <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Ver Progreso</a></li>
 
-        <label>Tipo:</label><br>
-        <select name="tipus" required onchange="toggleReps(this.value)">
-            <option value="Cardio">Cardio</option>
-            <option value="Força">Força</option>
-        </select><br>
+                    <!-- Agregar Logout si el usuario está autenticado -->
+                    {% if session.get('user_id') %}
+                        <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}" class="btn-login">Iniciar sesión</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    </header>
 
-        <label>Valor (km o kg):</label><br>
-        <input type="number" name="valor" step="0.01" required><br>
+    <!-- Contenido principal -->
+    <main>
+        <section class="welcome-section">
+            {% if session.get('user_name') %}
+                <h1>Bienvenido a tu aplicación de fitness, {{ session['user_name'] }}!</h1>
+            {% else %}
+                <h1>Bienvenido a FitnessApp!</h1>
+            {% endif %}
+            <p>Desde aquí podrás gestionar tus rutinas, seguir tu progreso y alcanzar tus objetivos.</p>
+        </section>
 
-        <div id="repsField" style="display: none;">
-            <label>Repeticiones:</label><br>
-            <input type="number" name="repeticions" min="1"><br>
-        </div><br>
+        <section class="options-section">
+            <h2>Opciones disponibles</h2>
+            <div class="option-links">
+                <p><a href="{{ url_for('crear_rutina') }}" class="btn-primary">Crear una nueva rutina</a></p>
+                <p><a href="{{ url_for('rutinas') }}" class="btn-secondary">Ver mis rutinas actuales</a></p>
+                <p><a href="{{ url_for('progress', usuari=session['user_name']) }}" class="btn-tertiary">Ver mi progreso</a></p>
+            </div>
+        </section>
+    </main>
 
-        <button type="submit">Guardar entrenamiento</button>
-    </form>
-
-    <hr>
-
-    <h2>Rutinas guardadas:</h2>
-    {% if rutines %}
-        <ul>
-        {% for rutina in rutines %}
-            <li><strong>{{ rutina[0] }}</strong>: {{ rutina[1] }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No hay rutinas registradas.</p>
-    {% endif %}
-
-    <p><a href="{{ url_for('crear_rutina') }}">Crear nueva rutina</a> | 
-      
-    <script>
-        function toggleReps(value) {
-            document.getElementById('repsField').style.display = value === 'Força' ? 'block' : 'none';
-        }
-    </script>
+    <!-- Pie de página -->
+    <footer>
+        <p>&copy; 2025 FitnessApp. Todos los derechos reservados.</p>
+    </footer>
 </body>
 </html>

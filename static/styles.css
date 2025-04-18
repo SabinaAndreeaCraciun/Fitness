@@ -1,0 +1,120 @@
+/* Estilos generales */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+}
+
+nav .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav ul li {
+    display: inline;
+    margin-left: 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav ul li a:hover {
+    color: #f39c12;
+}
+
+/* Estilos para el contenido principal */
+main {
+    padding: 20px;
+    text-align: center;
+}
+
+.welcome-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.welcome-section h1 {
+    color: #333;
+    font-size: 2rem;
+}
+
+.welcome-section p {
+    color: #555;
+    font-size: 1rem;
+}
+
+.options-section h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.option-links p {
+    margin: 10px 0;
+}
+
+.option-links a {
+    text-decoration: none;
+    font-size: 1.1rem;
+}
+
+.btn-primary, .btn-secondary, .btn-tertiary {
+    display: inline-block;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #3498db;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #2ecc71;
+}
+
+.btn-secondary:hover {
+    background-color: #27ae60;
+}
+
+.btn-tertiary {
+    background-color: #e67e22;
+}
+
+.btn-tertiary:hover {
+    background-color: #d35400;
+}
+
+/* Pie de página */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 30px;
+}
