@@ -1,25 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Rutinas del Usuario</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Rutinas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Bienvenido, {{ user_name }}!</h1>  <!-- Mostrar el nombre del usuario -->
-    
-    <h2>Mis Rutinas</h2>
-    <table>
-        <tr>
-            <th>Ejercicio</th>
-            <th>Series</th>
-            <th>Repeticiones</th>
-        </tr>
-        {% for rutina in rutinas %}
-            <tr>
-                <td>{{ rutina[1] }}</td>  <!-- Nombre del ejercicio -->
-                <td>{{ rutina[2] }}</td>  <!-- Número de series -->
-                <td>{{ rutina[3] }}</td>  <!-- Número de repeticiones -->
-            </tr>
-        {% endfor %}
-    </table>
+
+    <div class="container mt-5">
+        <h2 class="text-center">Mis Rutinas</h2>
+        
+        <!-- Mostrar mensaje si hay errores -->
+        {% if request.args.get('error') %}
+            <div class="alert alert-danger">
+                {{ request.args.get('error') }}
+            </div>
+        {% endif %}
+        
+        <!-- Tabla de Rutinas -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Ejercicio</th>
+                        <th>Series</th>
+                        <th>Repeticiones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rutina in rutinas %}
+                        <tr>
+                            <td>{{ rutina[1] }}</td>  <!-- Nombre del ejercicio -->
+                            <td>{{ rutina[2] }}</td>  <!-- Número de series -->
+                            <td>{{ rutina[3] }}</td>  <!-- Número de repeticiones -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botón para volver al inicio -->
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Volver al inicio</a>
+        </div>
+    </div>
+
+    <!-- Scripts de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 </html>
