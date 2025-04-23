@@ -141,63 +141,90 @@ def load_entrenaments():
 # --------------------------
 # Funciones para crear rutinas
 # --------------------------
-
 @app.route("/crear_rutina", methods=["GET", "POST"])
 def crear_rutina():
     if request.method == "GET":
         # Obtener los usuarios de la base de datos
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, nom FROM usuaris")  # Obtiene los nombres y IDs de los usuarios
-        usuaris = cursor.fetchall()
 
-        # Obtener los ejercicios de la base de datos
-        cursor.execute("SELECT id, nom, tipus, unitat FROM exercicis")  # Obtiene los ejercicios
-        exercicis = cursor.fetchall()
+        cursor.execute("SELECT id, nom FROM usuaris")
+        usuaris = cursor.fetchall()
 
         cursor.close()
         conn.close()
 
-        # Pasar los datos a la plantilla
-        return render_template("crear_rutina.html", usuaris=usuaris, exercicis=exercicis)
+        return render_template("crear_rutina.html", usuaris=usuaris)
 
     elif request.method == "POST":
         # Obtener los datos del formulario
-        usuari_nom = request.form['usuari']
-        exercici_nom = request.form['exercici']
+       
+        exercici_nombre = request.form['exercici']  # Obtener el nombre del ejercicio (ahora texto)
+        tipus = request.form['tipus']  # Obtener el tipo de ejercicio
+    
+        
+        if tipus not in ["Cardio", "Força"]:
+            tipus = "Cardio"  # Valor por defecto o lanzar error
+
         series = int(request.form['series'])
         repeticions = int(request.form['repeticions'])
 
-        # Buscar el ID del usuario por nombre
+        # Conectar a la base de datos
         conn = connect_db()
         cursor = conn.cursor()
 
-        # Buscar el ID del usuario por nombre
-        cursor.execute("SELECT id FROM usuaris WHERE nom = %s", (usuari_nom,))
-        usuari_id = cursor.fetchone()
+        # Verificar si el ejercicio ya existe en la base de datos
+        cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nombre,))
+        exercici = cursor.fetchone()
 
-        # Buscar el ID del ejercicio por nombre
-        cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nom,))
-        exercici_id = cursor.fetchone()
+        # Si el ejercicio no existe, crear uno nuevo
+        if not exercici:
+            try:
+                cursor.execute("INSERT INTO exercicis (nom, tipus, unitat) VALUES (%s, %s, %s)",
+                               (exercici_nombre, tipus, 'reps'))  # 'reps' como unidad por defecto
+                conn.commit()
 
-        # Si se encuentra el usuario y el ejercicio
-        if usuari_id and exercici_id:
-            # Guardar la rutina en la base de datos
-            cursor.execute(
-                "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
-                (usuari_id[0], exercici_id[0], series, repeticions)
-            )
-            conn.commit()
+                # Obtener el ID del nuevo ejercicio
+                cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nombre,))
+                exercici_id = cursor.fetchone()[0]
 
-            # Redirigir a la página de inicio o donde desees
-            return redirect(url_for("index"))
+            except Exception as e:
+                print(f"❌ Error creando ejercicio: {e}")
+                conn.rollback()
+                cursor.close()
+                conn.close()
+                return redirect(url_for("crear_rutina", error="Error creando el ejercicio"))
 
         else:
-            # Si no se encuentran el usuario o el ejercicio, redirigir con un error en la URL
-            return redirect(url_for("crear_rutina", error="Usuario o ejercicio no encontrados"))
+            # Si el ejercicio ya existe, obtener su ID
+            exercici_id = exercici[0]
 
-        cursor.close()
-        conn.close()
+        # Insertar rutina en la base de datos
+              # Obtener el ID del usuario autenticado desde la sesión
+        usuari_id = session.get("user_id")
+
+        # Insertar rutina en la base de datos
+        try:
+            cursor.execute(
+                "INSERT INTO rutines (usuari_id, exercici_id, tipus, series, repeticions) VALUES (%s, %s, %s, %s, %s)",
+                (usuari_id, exercici_id, tipus, series, repeticions)
+            )
+
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            return redirect(url_for("rutinas"))
+
+        except Exception as e:
+            print(f"❌ Error creando la rutina: {e}")
+            conn.rollback()
+            cursor.close()
+            conn.close()
+            return redirect(url_for("crear_rutina", error="Error creando rutina"))
+
+
+
 
 
 @app.route("/rutinas")
