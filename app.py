@@ -206,8 +206,8 @@ def crear_rutina():
         # Insertar rutina en la base de datos
         try:
             cursor.execute(
-                "INSERT INTO rutines (usuari_id, exercici_id, tipus, series, repeticions) VALUES (%s, %s, %s, %s, %s)",
-                (usuari_id, exercici_id, tipus, series, repeticions)
+                "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
+                (usuari_id, exercici_id,series, repeticions)
             )
 
             conn.commit()
