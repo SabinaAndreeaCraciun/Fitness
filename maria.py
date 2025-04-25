@@ -2,20 +2,98 @@ import mariadb
 import bcrypt
 import sys
 
-# Función para conectar a la base de datos MariaDB
+# Primero conectamos sin especificar base de datos para poder crearla
+def connect_server():
+    try:
+        conn = mariadb.connect(
+            user="root",
+            password="admin1234",
+            host="localhost",
+            port=3306
+        )
+        return conn
+    except mariadb.Error as e:
+        print(f"❌ Error conectando al servidor MariaDB: {e}")
+        sys.exit(1)
+
+# Luego conectamos a la base de datos ya creada
 def connect_db():
     try:
         conn = mariadb.connect(
-            user="root",  
-            password="admin1234",  
+            user="root",
+            password="admin1234",
             host="localhost",
             port=3306,
-            database="mariadb"  
+            database="mariadb"
         )
         return conn
     except mariadb.Error as e:
         print(f"❌ Error conectando a la base de datos MariaDB: {e}")
         sys.exit(1)
+
+# Crear la base de datos si no existe
+def create_database_if_not_exists():
+    conn = connect_server()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("CREATE DATABASE IF NOT EXISTS mariadb")
+        print("✅ Verificación completa: base de datos 'mariadb' lista.")
+    except mariadb.Error as e:
+        print(f"❌ Error al crear la base de datos: {e}")
+        sys.exit(1)
+    finally:
+        cursor.close()
+        conn.close()
+
+# Crear las tablas si no existen
+def create_tables_if_not_exists():
+    conn = connect_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS exercicis (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nom VARCHAR(255) NOT NULL,
+                tipus VARCHAR(100),
+                unitat VARCHAR(100)
+               
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS usuaris (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nom VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                contrasenya VARCHAR(255) NOT NULL,
+                nivell VARCHAR(50) NOT NULL
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS rutines (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                usuari_id INT NOT NULL,
+                exercici_id INT NOT NULL,
+                series INT NOT NULL,
+                repeticions INT NOT NULL,
+                FOREIGN KEY (usuari_id) REFERENCES usuaris(id),
+                FOREIGN KEY (exercici_id) REFERENCES exercicis(id)
+            )
+        """)
+        conn.commit()
+        print("✅ Las tablas fueron creadas o ya existían.")
+    except mariadb.Error as e:
+        print(f"❌ Error al crear las tablas: {e}")
+        sys.exit(1)
+    finally:
+        cursor.close()
+        conn.close()
+
+# Llama a las funciones iniciales al arrancar la aplicación
+create_database_if_not_exists()
+create_tables_if_not_exists()
+
 
 # Función para registrar un nuevo usuario
 def register_user(nom, email, contrasenya, nivell="Principiante"):
@@ -113,7 +191,7 @@ def add_routine(usuari_id, exercici_id, series, repeticions):
     try:
         cursor.execute(
             "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
-            (usuari_id, exercici_id, series, repeticions)
+            (usuari_id, exercici_id,series, repeticions)
         )
         conn.commit()
         print(f"✅ Rutina agregada para el usuario con ID: {usuari_id}")
@@ -130,10 +208,10 @@ def get_user_routines(usuari_id):
     cursor = conn.cursor()
 
     try:
-        cursor.execute("""
-            SELECT e.nom, r.series, r.repeticions
-            FROM rutines r
-            JOIN exercicis e ON r.exercici_id = e.id
+        cursor.execute(""" 
+            SELECT e.nom, r.series, r.repeticions 
+            FROM rutines r 
+            JOIN exercicis e ON r.exercici_id = e.id 
             WHERE r.usuari_id = %s
         """, (usuari_id,))
         routines = cursor.fetchall()
@@ -145,13 +223,12 @@ def get_user_routines(usuari_id):
         cursor.close()
         conn.close()
 
-# Obtener todos los ejercicios
 def get_all_exercises():
     conn = connect_db()
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT id, nom FROM exercicis")
+        cursor.execute("SELECT id, nom, tipus FROM exercicis")
         exercises = cursor.fetchall()
         return exercises
     except mariadb.Error as e:
@@ -160,3 +237,5 @@ def get_all_exercises():
     finally:
         cursor.close()
         conn.close()
+
+
