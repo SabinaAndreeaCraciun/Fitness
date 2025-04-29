@@ -38,6 +38,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Estimulo</th>
                         <th>Ejercicio</th>
                         <th>Series</th>
                         <th>Repeticiones</th>
@@ -46,9 +47,15 @@
                 <tbody>
                     {% for rutina in rutinas %}
                         <tr>
-                            <td>{{ rutina[1] }}</td>
-                            <td>{{ rutina[2] }}</td>
-                            <td>{{ rutina[3] }}</td>
+                            {% for rutina in rutinas %}
+                            <tr>
+                                <td>{{ rutina[2] }}</td> <!-- nombre del ejercicio -->
+                                <td>{{ rutina[1] }}</td> <!-- grupo muscular (estimul) -->
+                                <td>{{ rutina[3] }}</td> <!-- series -->
+                                <td>{{ rutina[4] }}</td> <!-- repeticiones -->
+                            </tr>
+                        {% endfor %}
+                        
                         </tr>
                     {% endfor %}
                 </tbody>

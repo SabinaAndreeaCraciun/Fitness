@@ -49,7 +49,7 @@ def create_tables_if_not_exists():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS exercicis (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                estimul VARCHAR(255)  NULL DEFAULT 'No especificado',
+                estimul VARCHAR(255)  NULL,
                 nom VARCHAR(255) NOT NULL,
                 tipus VARCHAR(100),
                 unitat VARCHAR(100)
@@ -167,10 +167,12 @@ def get_all_users():
         conn.close()
 
 def add_exercise(nom, tipus=None, unitat=None, estimul=None):
+  
+
     conn = connect_db()
     cursor = conn.cursor()
     
-    # Si no se pasa un valor para 'estimul', asignar 'No especificado'
+    # Si no se proporciona un valor para 'estimul', asignar 'No especificado'
     if estimul is None:
         estimul = 'No especificado'
     
@@ -180,7 +182,7 @@ def add_exercise(nom, tipus=None, unitat=None, estimul=None):
             (estimul, nom, tipus, unitat)
         )
         conn.commit()
-        print(f"✅ Ejercicio '{nom}' añadido correctamente.")
+        print(f"✅ Ejercicio '{nom}' añadido correctamente con el grupo muscular '{estimul}'.")
         return cursor.lastrowid
     except mariadb.Error as e:
         print(f"❌ Error al crear ejercicio: {e}")
@@ -206,16 +208,38 @@ def get_all_exercises():
         conn.close()
 
 def add_routine(usuari_id, exercici_id, series, repeticions):
+    if not isinstance(series, int) or series <= 0:
+        print("❌ Error: 'series' debe ser un número entero mayor que 0.")
+        return
+    if not isinstance(repeticions, int) or repeticions <= 0:
+        print("❌ Error: 'repeticions' debe ser un número entero mayor que 0.")
+        return
+
+    # Validar que el usuario y ejercicio existen
+    if not validate_ids(usuari_id, exercici_id):
+        print("❌ Los IDs de usuario o ejercicio no son válidos.")
+        return
+
     conn = connect_db()
     cursor = conn.cursor()
 
     try:
-        cursor.execute(
-            "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
-            (usuari_id, exercici_id, series, repeticions)
-        )
-        conn.commit()
-        print(f"✅ Rutina agregada para el usuario con ID: {usuari_id}")
+        # Obtener el nombre del grupo muscular (estimul) del ejercicio
+        cursor.execute("SELECT estimul FROM exercicis WHERE id = %s", (exercici_id,))
+        result = cursor.fetchone()
+
+        if result:
+            estimul = result[0]  # Obtener el grupo muscular (estimul)
+
+            cursor.execute(
+                "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
+                (usuari_id, exercici_id, series, repeticions)
+            )
+            conn.commit()
+            print(f"✅ Rutina agregada para el usuario con ID: {usuari_id}. Grupo muscular: {estimul}")
+        else:
+            print("❌ El ejercicio con el ID especificado no existe.")
+            return
     except mariadb.Error as e:
         print(f"❌ Error al agregar la rutina: {e}")
         conn.rollback()
@@ -223,24 +247,6 @@ def add_routine(usuari_id, exercici_id, series, repeticions):
         cursor.close()
         conn.close()
 
-def get_user_routines(usuari_id):
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute(""" 
-            SELECT e.nom, r.series, r.repeticions 
-            FROM rutines r 
-            JOIN exercicis e ON r.exercici_id = e.id 
-            WHERE r.usuari_id = %s
-        """, (usuari_id,))
-        return cursor.fetchall()
-    except mariadb.Error as e:
-        print(f"❌ Error al obtener las rutinas: {e}")
-        return []
-    finally:
-        cursor.close()
-        conn.close()
 
 def show_table_structure():
     conn = connect_db()
@@ -258,7 +264,8 @@ def show_table_structure():
 if __name__ == "__main__":
     # Verificar estructura de la tabla
     show_table_structure()
-    
+    add_exercise()
+
     # Mostrar todos los ejercicios
     exercises = get_all_exercises()
     print("\nEjercicios en la base de datos:")
