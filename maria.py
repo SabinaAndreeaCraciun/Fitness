@@ -166,9 +166,13 @@ def get_all_users():
         cursor.close()
         conn.close()
 
-def add_exercise(nom, tipus=None, unitat=None, estimul='No especificado'):
+def add_exercise(nom, tipus=None, unitat=None, estimul=None):
     conn = connect_db()
     cursor = conn.cursor()
+    
+    # Si no se pasa un valor para 'estimul', asignar 'No especificado'
+    if estimul is None:
+        estimul = 'No especificado'
     
     try:
         cursor.execute(
@@ -185,6 +189,7 @@ def add_exercise(nom, tipus=None, unitat=None, estimul='No especificado'):
     finally:
         cursor.close()
         conn.close()
+
 
 def get_all_exercises():
     conn = connect_db()
@@ -253,9 +258,6 @@ def show_table_structure():
 if __name__ == "__main__":
     # Verificar estructura de la tabla
     show_table_structure()
-    
-    # Añadir un ejercicio de prueba
-    add_exercise("Flexiones", "Fuerza", "Repeticiones", "Pectorales")
     
     # Mostrar todos los ejercicios
     exercises = get_all_exercises()
