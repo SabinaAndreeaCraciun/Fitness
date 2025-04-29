@@ -2,42 +2,39 @@ import mariadb
 import bcrypt
 import sys
 
-# Primero conectamos sin especificar base de datos para poder crearla
+DATABASE_NAME = "mariadb"
+
 def connect_server():
     try:
-        conn = mariadb.connect(
+        return mariadb.connect(
             user="root",
             password="admin1234",
             host="localhost",
             port=3306
         )
-        return conn
     except mariadb.Error as e:
         print(f"❌ Error conectando al servidor MariaDB: {e}")
         sys.exit(1)
 
-# Luego conectamos a la base de datos ya creada
 def connect_db():
     try:
-        conn = mariadb.connect(
+        return mariadb.connect(
             user="root",
             password="admin1234",
             host="localhost",
             port=3306,
-            database="mariadb"
+            database=DATABASE_NAME
         )
-        return conn
     except mariadb.Error as e:
-        print(f"❌ Error conectando a la base de datos MariaDB: {e}")
+        print(f"❌ Error conectando a la base de datos '{DATABASE_NAME}': {e}")
         sys.exit(1)
 
-# Crear la base de datos si no existe
 def create_database_if_not_exists():
     conn = connect_server()
     cursor = conn.cursor()
     try:
-        cursor.execute("CREATE DATABASE IF NOT EXISTS mariadb")
-        print("✅ Verificación completa: base de datos 'mariadb' lista.")
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DATABASE_NAME}")
+        print(f"✅ Verificación completa: base de datos '{DATABASE_NAME}' lista.")
     except mariadb.Error as e:
         print(f"❌ Error al crear la base de datos: {e}")
         sys.exit(1)
@@ -45,7 +42,6 @@ def create_database_if_not_exists():
         cursor.close()
         conn.close()
 
-# Crear las tablas si no existen
 def create_tables_if_not_exists():
     conn = connect_db()
     cursor = conn.cursor()
@@ -53,13 +49,12 @@ def create_tables_if_not_exists():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS exercicis (
                 id INT AUTO_INCREMENT PRIMARY KEY,
+                estimul VARCHAR(255) NOT NULL DEFAULT 'No especificado',
                 nom VARCHAR(255) NOT NULL,
                 tipus VARCHAR(100),
                 unitat VARCHAR(100)
-               
             )
         """)
-
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS usuaris (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -69,7 +64,6 @@ def create_tables_if_not_exists():
                 nivell VARCHAR(50) NOT NULL
             )
         """)
-
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS rutines (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -90,25 +84,22 @@ def create_tables_if_not_exists():
         cursor.close()
         conn.close()
 
-# Llama a las funciones iniciales al arrancar la aplicación
 create_database_if_not_exists()
 create_tables_if_not_exists()
 
-
-# Función para registrar un nuevo usuario
 def register_user(nom, email, contrasenya, nivell="Principiante"):
     conn = connect_db()
     cursor = conn.cursor()
 
     if nivell not in ["Principiante", "Intermedio", "Avanzado"]:
-        print(f"❌ Nivel '{nivell}' no válido. Asignando 'Principiante' como nivel por defecto.")
+        print(f"❌ Nivel '{nivell}' no válido. Asignando 'Principiante'.")
         nivell = "Principiante"
 
-    hashed_password = bcrypt.hashpw(contrasenya.encode('utf-8'), bcrypt.gensalt())
+    hashed_password = bcrypt.hashpw(contrasenya.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     try:
         cursor.execute(
-            "INSERT INTO usuaris (nom, email, contrasenya, nivell) VALUES (%s, %s, %s, %s)", 
+            "INSERT INTO usuaris (nom, email, contrasenya, nivell) VALUES (%s, %s, %s, %s)",
             (nom, email, hashed_password, nivell)
         )
         conn.commit()
@@ -120,7 +111,6 @@ def register_user(nom, email, contrasenya, nivell="Principiante"):
         cursor.close()
         conn.close()
 
-# Función para verificar la contraseña
 def verify_password(email, contrasenya):
     conn = connect_db()
     cursor = conn.cursor()
@@ -147,7 +137,6 @@ def verify_password(email, contrasenya):
         cursor.close()
         conn.close()
 
-# Función para recuperar el nivel de un usuario
 def get_user_level(email):
     conn = connect_db()
     cursor = conn.cursor()
@@ -163,15 +152,13 @@ def get_user_level(email):
         cursor.close()
         conn.close()
 
-# Función para obtener todos los usuarios registrados
 def get_all_users():
     conn = connect_db()
     cursor = conn.cursor()
 
     try:
         cursor.execute("SELECT id, nom, email, nivell FROM usuaris")
-        users = cursor.fetchall()
-        return users
+        return cursor.fetchall()
     except mariadb.Error as e:
         print(f"❌ Error al obtener los usuarios: {e}")
         return []
@@ -179,11 +166,40 @@ def get_all_users():
         cursor.close()
         conn.close()
 
-# ---------------------------------
-# Funciones relacionadas con rutinas
-# ---------------------------------
+def add_exercise(nom, tipus=None, unitat=None, estimul='No especificado'):
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(
+            "INSERT INTO exercicis (estimul, nom, tipus, unitat) VALUES (%s, %s, %s, %s)",
+            (estimul, nom, tipus, unitat)
+        )
+        conn.commit()
+        print(f"✅ Ejercicio '{nom}' añadido correctamente.")
+        return cursor.lastrowid
+    except mariadb.Error as e:
+        print(f"❌ Error al crear ejercicio: {e}")
+        conn.rollback()
+        return None
+    finally:
+        cursor.close()
+        conn.close()
 
-# Agregar una rutina
+def get_all_exercises():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT id, estimul, nom, tipus FROM exercicis")
+        return cursor.fetchall()
+    except mariadb.Error as e:
+        print(f"❌ Error al obtener los ejercicios: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
+
 def add_routine(usuari_id, exercici_id, series, repeticions):
     conn = connect_db()
     cursor = conn.cursor()
@@ -191,7 +207,7 @@ def add_routine(usuari_id, exercici_id, series, repeticions):
     try:
         cursor.execute(
             "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
-            (usuari_id, exercici_id,series, repeticions)
+            (usuari_id, exercici_id, series, repeticions)
         )
         conn.commit()
         print(f"✅ Rutina agregada para el usuario con ID: {usuari_id}")
@@ -202,7 +218,6 @@ def add_routine(usuari_id, exercici_id, series, repeticions):
         cursor.close()
         conn.close()
 
-# Obtener rutinas por usuario
 def get_user_routines(usuari_id):
     conn = connect_db()
     cursor = conn.cursor()
@@ -214,8 +229,7 @@ def get_user_routines(usuari_id):
             JOIN exercicis e ON r.exercici_id = e.id 
             WHERE r.usuari_id = %s
         """, (usuari_id,))
-        routines = cursor.fetchall()
-        return routines
+        return cursor.fetchall()
     except mariadb.Error as e:
         print(f"❌ Error al obtener las rutinas: {e}")
         return []
@@ -223,19 +237,28 @@ def get_user_routines(usuari_id):
         cursor.close()
         conn.close()
 
-def get_all_exercises():
+def show_table_structure():
     conn = connect_db()
     cursor = conn.cursor()
-
     try:
-        cursor.execute("SELECT id, nom, tipus FROM exercicis")
-        exercises = cursor.fetchall()
-        return exercises
+        cursor.execute("SHOW CREATE TABLE exercicis")
+        print(cursor.fetchone()[1])
     except mariadb.Error as e:
-        print(f"❌ Error al obtener los ejercicios: {e}")
-        return []
+        print(f"❌ Error al obtener estructura de tabla: {e}")
     finally:
         cursor.close()
         conn.close()
 
-
+# Ejemplo de uso:
+if __name__ == "__main__":
+    # Verificar estructura de la tabla
+    show_table_structure()
+    
+    # Añadir un ejercicio de prueba
+    add_exercise("Flexiones", "Fuerza", "Repeticiones", "Pectorales")
+    
+    # Mostrar todos los ejercicios
+    exercises = get_all_exercises()
+    print("\nEjercicios en la base de datos:")
+    for exercise in exercises:
+        print(exercise)
