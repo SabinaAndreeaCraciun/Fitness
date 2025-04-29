@@ -49,7 +49,7 @@ def create_tables_if_not_exists():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS exercicis (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                estimul VARCHAR(255) NOT NULL DEFAULT 'No especificado',
+                estimul VARCHAR(255)  NULL DEFAULT 'No especificado',
                 nom VARCHAR(255) NOT NULL,
                 tipus VARCHAR(100),
                 unitat VARCHAR(100)

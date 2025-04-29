@@ -181,7 +181,7 @@ def crear_rutina():
         if not exercici:
             try:
                 cursor.execute("INSERT INTO exercicis (nom, tipus, unitat) VALUES (%s, %s, %s)",
-                               (exercici_nombre, tipus, 'reps'))  # 'reps' como unidad por defecto
+                               (exercici_nombre, tipus, 'reps',))  # 'reps' como unidad por defecto
                 conn.commit()
 
                 # Obtener el ID del nuevo ejercicio
