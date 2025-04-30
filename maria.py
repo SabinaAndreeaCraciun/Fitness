@@ -46,6 +46,8 @@ def create_tables_if_not_exists():
     conn = connect_db()
     cursor = conn.cursor()
     try:
+        print("Creando tablas...")
+
         cursor.execute(""" 
             CREATE TABLE IF NOT EXISTS exercicis (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -55,7 +57,7 @@ def create_tables_if_not_exists():
                 unitat VARCHAR(100)
             )
         """)
-        cursor.execute("""
+        cursor.execute(""" 
             CREATE TABLE IF NOT EXISTS usuaris (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 nom VARCHAR(255) NOT NULL,
@@ -64,7 +66,7 @@ def create_tables_if_not_exists():
                 nivell VARCHAR(50) NOT NULL
             )
         """)
-        cursor.execute("""
+        cursor.execute(""" 
             CREATE TABLE IF NOT EXISTS rutines (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 usuari_id INT NOT NULL,
@@ -79,7 +81,7 @@ def create_tables_if_not_exists():
         print("✅ Las tablas fueron creadas o ya existían.")
     except mariadb.Error as e:
         print(f"❌ Error al crear las tablas: {e}")
-        sys.exit(1)
+        conn.rollback()
     finally:
         cursor.close()
         conn.close()
@@ -166,31 +168,28 @@ def get_all_users():
         cursor.close()
         conn.close()
 
-def add_exercise(nom, tipus=None, unitat=None, estimul_grup=None):
+def add_exercise(nom, tipus=None, unitat=None, estimul=None):
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Si no se proporciona un valor para 'estimul', asignar 'No especificado'
-    if estimul_grup is None:
-        estimul_grup = 'No especificado'
-    
+    if estimul is None:
+        estimul = 'No especificado'
+
     try:
-        # Verificar si el ejercicio ya existe en la base de datos
         cursor.execute(""" 
             SELECT id FROM exercicis WHERE nom = %s AND estimul = %s
-        """, (nom, estimul_grup))
-        
+        """, (nom, estimul))
+
         if cursor.fetchone():
-            print(f"⚠️ El ejercicio '{nom}' con el grupo muscular '{estimul_grup}' ya existe. No se agregará duplicado.")
+            print(f"⚠️ El ejercicio '{nom}' con el grupo muscular '{estimul}' ya existe. No se agregará duplicado.")
             return None
 
-        # Si no existe, insertamos el nuevo ejercicio
         cursor.execute(
             "INSERT INTO exercicis (estimul, nom, tipus, unitat) VALUES (%s, %s, %s, %s)",
-            (estimul_grup, nom, tipus, unitat)
+            (estimul, nom, tipus, unitat)
         )
         conn.commit()
-        print(f"✅ Ejercicio '{nom}' añadido correctamente con el grupo muscular '{estimul_grup}'.")
+        print(f"✅ Ejercicio '{nom}' añadido correctamente con el grupo muscular '{estimul}'.")
         return cursor.lastrowid
     except mariadb.Error as e:
         print(f"❌ Error al crear ejercicio: {e}")
