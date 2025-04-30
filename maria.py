@@ -46,10 +46,10 @@ def create_tables_if_not_exists():
     conn = connect_db()
     cursor = conn.cursor()
     try:
-        cursor.execute("""
+        cursor.execute(""" 
             CREATE TABLE IF NOT EXISTS exercicis (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                estimul VARCHAR(255)  NULL,
+                estimul VARCHAR(255) NULL,
                 nom VARCHAR(255) NOT NULL,
                 tipus VARCHAR(100),
                 unitat VARCHAR(100)
@@ -166,23 +166,31 @@ def get_all_users():
         cursor.close()
         conn.close()
 
-def add_exercise(nom, tipus=None, unitat=None, estimul=None):
-  
-
+def add_exercise(nom, tipus=None, unitat=None, estimul_grup=None):
     conn = connect_db()
     cursor = conn.cursor()
-    
+
     # Si no se proporciona un valor para 'estimul', asignar 'No especificado'
-    if estimul is None:
-        estimul = 'No especificado'
+    if estimul_grup is None:
+        estimul_grup = 'No especificado'
     
     try:
+        # Verificar si el ejercicio ya existe en la base de datos
+        cursor.execute(""" 
+            SELECT id FROM exercicis WHERE nom = %s AND estimul = %s
+        """, (nom, estimul_grup))
+        
+        if cursor.fetchone():
+            print(f"⚠️ El ejercicio '{nom}' con el grupo muscular '{estimul_grup}' ya existe. No se agregará duplicado.")
+            return None
+
+        # Si no existe, insertamos el nuevo ejercicio
         cursor.execute(
             "INSERT INTO exercicis (estimul, nom, tipus, unitat) VALUES (%s, %s, %s, %s)",
-            (estimul, nom, tipus, unitat)
+            (estimul_grup, nom, tipus, unitat)
         )
         conn.commit()
-        print(f"✅ Ejercicio '{nom}' añadido correctamente con el grupo muscular '{estimul}'.")
+        print(f"✅ Ejercicio '{nom}' añadido correctamente con el grupo muscular '{estimul_grup}'.")
         return cursor.lastrowid
     except mariadb.Error as e:
         print(f"❌ Error al crear ejercicio: {e}")
@@ -191,7 +199,6 @@ def add_exercise(nom, tipus=None, unitat=None, estimul=None):
     finally:
         cursor.close()
         conn.close()
-
 
 def get_all_exercises():
     conn = connect_db()
@@ -207,64 +214,11 @@ def get_all_exercises():
         cursor.close()
         conn.close()
 
-def add_routine(usuari_id, exercici_id, series, repeticions):
-    if not isinstance(series, int) or series <= 0:
-        print("❌ Error: 'series' debe ser un número entero mayor que 0.")
-        return
-    if not isinstance(repeticions, int) or repeticions <= 0:
-        print("❌ Error: 'repeticions' debe ser un número entero mayor que 0.")
-        return
-
-    # Validar que el usuario y ejercicio existen
-    if not validate_ids(usuari_id, exercici_id):
-        print("❌ Los IDs de usuario o ejercicio no son válidos.")
-        return
-
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    try:
-        # Obtener el nombre del grupo muscular (estimul) del ejercicio
-        cursor.execute("SELECT estimul FROM exercicis WHERE id = %s", (exercici_id,))
-        result = cursor.fetchone()
-
-        if result:
-            estimul = result[0]  # Obtener el grupo muscular (estimul)
-
-            cursor.execute(
-                "INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
-                (usuari_id, exercici_id, series, repeticions)
-            )
-            conn.commit()
-            print(f"✅ Rutina agregada para el usuario con ID: {usuari_id}. Grupo muscular: {estimul}")
-        else:
-            print("❌ El ejercicio con el ID especificado no existe.")
-            return
-    except mariadb.Error as e:
-        print(f"❌ Error al agregar la rutina: {e}")
-        conn.rollback()
-    finally:
-        cursor.close()
-        conn.close()
-
-
-def show_table_structure():
-    conn = connect_db()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SHOW CREATE TABLE exercicis")
-        print(cursor.fetchone()[1])
-    except mariadb.Error as e:
-        print(f"❌ Error al obtener estructura de tabla: {e}")
-    finally:
-        cursor.close()
-        conn.close()
-
 # Ejemplo de uso:
 if __name__ == "__main__":
     # Verificar estructura de la tabla
-    show_table_structure()
-    add_exercise()
+    create_database_if_not_exists()
+    create_tables_if_not_exists()
 
     # Mostrar todos los ejercicios
     exercises = get_all_exercises()

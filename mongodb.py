@@ -1,32 +1,35 @@
+# mongo.py
 from pymongo import MongoClient
+from datetime import datetime
 
-# Connexió amb MongoDB (per defecte és localhost i port 27017)
+# Connexió a MongoDB
 client = MongoClient('mongodb://localhost:27017/')
-
-# Seleccionem o creem una base de dades (per exemple, fitness_app)
 db = client['fitness_app']
 
-# Seleccionem o creem una col·lecció (per exemple, progressos)
-collection = db['progressos']
+# Funció per guardar el progrés d'un usuari
+def guardar_progres(usuari_id, exercici, valor):
+    data = datetime.now().strftime("%Y-%m-%d")  # Obtenir la data actual
+    document = {
+        "usuari_id": usuari_id,
+        "progressos": [{"exercici": exercici, "data": data, "valor": valor}]
+    }
+    # Afegir o actualitzar el document de l'usuari
+    db.progressos.update_one({"usuari_id": usuari_id}, {"$push": {"progressos": {"exercici": exercici, "data": data, "valor": valor}}}, upsert=True)
 
-# Inserir un document (progrés d'entrenament)
-document = {
-    "usuari": "johndoe",
-    "data": "2025-04-18",
-    "tipus_entrenament": "Cardio",
-    "exercicis": [
-        {"nom": "Correr", "sèries": 3, "repeticions": 15},
-        {"nom": "Salt de corda", "sèries": 2, "repeticions": 20}
-    ],
-    "temps_total": 30
-}
+# Funció per recuperar els progressos d'un usuari
+def visualitzar_progressos(usuari_id):
+    progressos = db.progressos.find_one({"usuari_id": usuari_id})
+    if not progressos:
+        return "No hi ha progressos registrats."
+    
+    exercicis = [p['exercici'] for p in progressos['progressos']]
+    dates = [p['data'] for p in progressos['progressos']]
+    valors = [p['valor'] for p in progressos['progressos']]
+    
+    return {"exercicis": exercicis, "dates": dates, "valors": valors}
 
-# Inserim el document a la col·lecció
-collection.insert_one(document)
-
-# Recuperar els documents de la col·lecció
-progressos = collection.find({"usuari": "johndoe"})
-
-# Mostrar els progressos recuperats
-for progrés in progressos:
-    print(progrés)
+# Funció per afegir comentaris
+def afegir_comentari(usuari_id, comentari):
+    data = datetime.now().strftime("%Y-%m-%d")
+    document = {"data": data, "comentari": comentari}
+    db.comentaris.update_one({"usuari_id": usuari_id}, {"$push": {"notes": document}}, upsert=True)
