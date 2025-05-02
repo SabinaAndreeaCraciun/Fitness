@@ -89,7 +89,7 @@ def create_tables_if_not_exists():
 create_database_if_not_exists()
 create_tables_if_not_exists()
 
-def register_user(nom, email, contrasenya, nivell="Principiant"):
+def registrar_usuario(nom, email, contrasenya, nivell="Principiant"):
     conn = connect_db()
     cursor = conn.cursor()
 

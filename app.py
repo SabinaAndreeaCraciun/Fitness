@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for, session
-from database import connect_db, register_user  # Asegúrate de que este archivo tenga la conexión
+from database import connect_db, registrar_usuario  # Asegúrate de que este archivo tenga la conexión
 import bcrypt
 import csv
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ class Usuari:
 
     def guardar(self):     
         try: 
-            register_user(self.nom, self.email, self.contrasenya, self.nivell)
+            registrar_usuario(self.nom, self.email, self.contrasenya, self.nivell)
             return True
         except Exception as e:
             print(f"❌ Error guardando el usuario: {e}")
