@@ -53,7 +53,7 @@ def create_tables_if_not_exists():
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 estimul VARCHAR(255) NULL,
                 nom VARCHAR(255) NOT NULL,
-                tipus VARCHAR(100),
+                tipus ENUM('Cardio', 'Força'), 
                 unitat VARCHAR(100)
             )
         """)
@@ -63,7 +63,7 @@ def create_tables_if_not_exists():
                 nom VARCHAR(255) NOT NULL,
                 email VARCHAR(255) UNIQUE NOT NULL,
                 contrasenya VARCHAR(255) NOT NULL,
-                nivell VARCHAR(50) NOT NULL
+                nivell  ENUM('Principiant', 'Intermedi', 'Avançat')
             )
         """)
         cursor.execute(""" 
@@ -89,13 +89,13 @@ def create_tables_if_not_exists():
 create_database_if_not_exists()
 create_tables_if_not_exists()
 
-def register_user(nom, email, contrasenya, nivell="Principiante"):
+def register_user(nom, email, contrasenya, nivell="Principiant"):
     conn = connect_db()
     cursor = conn.cursor()
 
-    if nivell not in ["Principiante", "Intermedio", "Avanzado"]:
-        print(f"❌ Nivel '{nivell}' no válido. Asignando 'Principiante'.")
-        nivell = "Principiante"
+    if nivell not in ["Principiant", "Intermedi", "Avançat"]:
+        print(f"❌ Nivel '{nivell}' no válido. Asignando 'Principiant'.")
+        nivell = "Principiant"
 
     hashed_password = bcrypt.hashpw(contrasenya.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 

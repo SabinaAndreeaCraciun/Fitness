@@ -13,7 +13,7 @@ app.secret_key = "supersecreto123"  # Necesario para usar sesiones
 # --------------------------
 
 class Usuari:
-    def __init__(self, nom, email, contrasenya, nivell="Principiante"):
+    def __init__(self, nom, email, contrasenya, nivell="Principiant"):
         self.nom = nom
         self.email = email
         self.contrasenya = contrasenya
@@ -26,8 +26,8 @@ class Usuari:
         conn = connect_db()
         cursor = conn.cursor()
 
-        if self.nivell not in ["Principiante", "Intermedio", "Avanzado"]:
-            self.nivell = "Principiante"
+        if self.nivell not in ["Principiant", "Intermedi", "Avançat"]:
+            self.nivell = "Principiant"
 
         hashed = self.encriptar_contrasenya()
 
@@ -253,6 +253,7 @@ def register():
         email = request.form["email"]
         contrasenya = request.form["contrasenya"]
         nivell = request.form["nivell"]
+        print(nom, email, contrasenya, nivell)
 
         usuari = Usuari(nom, email, contrasenya, nivell)
         if usuari.guardar():
