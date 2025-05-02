@@ -143,3 +143,11 @@ p a:hover {
     text-decoration: underline;
     color: #00d0e6;
 }
+
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
