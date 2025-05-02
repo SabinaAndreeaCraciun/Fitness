@@ -1,9 +1,8 @@
 from flask import Flask, request, render_template, redirect, url_for, session
-from maria import connect_db  # Asegúrate de que este archivo tenga la conexión
+from database import connect_db, register_user  # Asegúrate de que este archivo tenga la conexión
 import bcrypt
 import csv
 import matplotlib.pyplot as plt
-from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "supersecreto123"  # Necesario para usar sesiones
@@ -19,33 +18,14 @@ class Usuari:
         self.contrasenya = contrasenya
         self.nivell = nivell
 
-    def encriptar_contrasenya(self):
-        return bcrypt.hashpw(self.contrasenya.encode('utf-8'), bcrypt.gensalt())
-
-    def guardar(self):
-        conn = connect_db()
-        cursor = conn.cursor()
-
-        if self.nivell not in ["Principiant", "Intermedi", "Avançat"]:
-            self.nivell = "Principiant"
-
-        hashed = self.encriptar_contrasenya()
-
-        try:
-            cursor.execute(
-                "INSERT INTO usuaris (nom, email, contrasenya, nivell) VALUES (%s, %s, %s, %s)",
-                (self.nom, self.email, hashed, self.nivell)
-            )
-            conn.commit()
+    def guardar(self):     
+        try: 
+            register_user(self.nom, self.email, self.contrasenya, self.nivell)
             return True
         except Exception as e:
             print(f"❌ Error guardando el usuario: {e}")
-            conn.rollback()
             return False
-        finally:
-            cursor.close()
-            conn.close()
-
+        
     @staticmethod
     def verificar(email, contrasenya_entrada):
         conn = connect_db()
