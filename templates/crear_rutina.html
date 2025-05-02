@@ -15,8 +15,6 @@
                 <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
                 <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
                 <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Ver Progreso</a></li>
-
-                <!-- Si el usuario está autenticado, muestra la opción de cerrar sesión -->
                 {% if session.get('user_id') %}
                     <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
                 {% else %}
@@ -46,10 +44,10 @@
                         <option value="Fuerza">Fuerza</option>
                     </select>
                 </div>
-                
 
+                <!-- Grupo muscular -->
                 <div class="form-group">
-                    <label for="exercici">Grupo muscular:</label>
+                    <label for="estimul">Grupo muscular:</label>
                     <select id="estimul" name="estimul" required>
                         <option value="">Selecciona un grupo muscular</option>
                         <option value="Torso">Torso</option>
@@ -64,7 +62,6 @@
                         <option value="Zona lumbar">Zona lumbar</option>
                     </select>
                 </div>
-                
 
                 <!-- Nombre del ejercicio -->
                 <div class="form-group">
@@ -84,13 +81,113 @@
                     <input type="number" id="repeticions" name="repeticions" min="1" required>
                 </div>
 
+                <!-- Botón principal -->
                 <div class="form-group">
                     <button type="submit" class="btn-submit">Crear Rutina</button>
                 </div>
-            </form>
+
+                <!-- Botones adicionales -->
+                <div class="form-buttons" style="margin-top:20px;">
+                    <button type="button" class="btn-afegir" onclick="afegirExercici()">Afegir Exercici</button>
+                    <button type="button" class="btn-editar" onclick="editarExercici()">Editar Exercici</button>
+                    <button type="button" class="btn-supprimir" onclick="suprimirExercici()">Suprimir Exercici</button>
+                </div>
+
+                <!-- Lista de ejercicios -->
+                <div class="form-group">
+                    <h3>Exercicis afegits:</h3>
+                    <ul id="llistaExercicis"></ul>
+                </div>
+
+                <!-- Campo oculto -->
+                <input type="hidden" name="exercicis_json" id="exercicis_json" />
 
             <p><a href="{{ url_for('index') }}" class="btn-back">Volver al inicio</a></p>
         </section>
     </main>
+
+    <!-- JavaScript -->
+    <script>
+        let exercicis = [];
+        let editarIndex = -1;
+
+        function obtenirDadesFormulari() {
+            return {
+                tipus: document.getElementById("tipus").value,
+                estimul: document.getElementById("estimul").value,
+                exercici: document.getElementById("exercici").value,
+                series: document.getElementById("series").value,
+                repeticions: document.getElementById("repeticions").value
+            };
+        }
+
+        function netejarFormulari() {
+            document.getElementById("tipus").value = "";
+            document.getElementById("estimul").value = "";
+            document.getElementById("exercici").value = "";
+            document.getElementById("series").value = "";
+            document.getElementById("repeticions").value = "";
+            editarIndex = -1;
+        }
+
+        function actualitzarLlista() {
+            const llista = document.getElementById("llistaExercicis");
+            llista.innerHTML = "";
+            exercicis.forEach((ex, index) => {
+                const item = document.createElement("li");
+                item.textContent = `${ex.tipus} - ${ex.estimul} - ${ex.exercici} (${ex.series}x${ex.repeticions})`;
+                item.onclick = () => seleccionarPerEditar(index);
+                if (editarIndex === index) {
+                    item.style.backgroundColor = "#ffd";
+                }
+                llista.appendChild(item);
+            });
+            document.getElementById("exercicis_json").value = JSON.stringify(exercicis);
+        }
+
+        function afegirExercici() {
+            const nou = obtenirDadesFormulari();
+            if (!nou.tipus || !nou.estimul || !nou.exercici || !nou.series || !nou.repeticions) {
+                alert("Completa tots els camps abans d'afegir.");
+                return;
+            }
+            if (editarIndex >= 0) {
+                exercicis[editarIndex] = nou;
+                editarIndex = -1;
+            } else {
+                exercicis.push(nou);
+            }
+            netejarFormulari();
+            actualitzarLlista();
+        }
+
+        function seleccionarPerEditar(index) {
+            const ex = exercicis[index];
+            document.getElementById("tipus").value = ex.tipus;
+            document.getElementById("estimul").value = ex.estimul;
+            document.getElementById("exercici").value = ex.exercici;
+            document.getElementById("series").value = ex.series;
+            document.getElementById("repeticions").value = ex.repeticions;
+            editarIndex = index;
+        }
+
+        function editarExercici() {
+            if (editarIndex === -1) {
+                alert("Selecciona un exercici per editar primer.");
+                return;
+            }
+            afegirExercici();
+        }
+
+        function suprimirExercici() {
+            if (editarIndex === -1) {
+                alert("Selecciona un exercici per suprimir primer.");
+                return;
+            }
+            exercicis.splice(editarIndex, 1);
+            editarIndex = -1;
+            actualitzarLlista();
+        }
+    </script>
 </body>
 </html>
