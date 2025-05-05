@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for, session
-from database import connect_db, registrar_usuario  # Asegúrate de que este archivo tenga la conexión
+from database import conectar_db, registrar_usuari  # Asegúrate de que este archivo tenga la conexión
 import bcrypt
 import csv
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ class Usuari:
 
     def guardar(self):     
         try: 
-            registrar_usuario(self.nom, self.email, self.contrasenya, self.nivell)
+            registrar_usuari(self.nom, self.email, self.contrasenya, self.nivell)
             return True
         except Exception as e:
             print(f"❌ Error guardando el usuario: {e}")
@@ -28,7 +28,7 @@ class Usuari:
         
     @staticmethod
     def verificar(email, contrasenya_entrada):
-        conn = connect_db()
+        conn = conectar_db()
         cursor = conn.cursor()
 
         try:
@@ -49,7 +49,7 @@ class Usuari:
 
     @staticmethod
     def obtenir_id(email):
-        conn = connect_db()
+        conn = conectar_db()
         cursor = conn.cursor()
         try:
             cursor.execute("SELECT id FROM usuaris WHERE email = %s", (email,))
@@ -125,7 +125,7 @@ def load_entrenaments():
 def crear_rutina():
     if request.method == "GET":
         # Obtener los usuarios de la base de datos
-        conn = connect_db()
+        conn = conectar_db()
         cursor = conn.cursor()
 
         cursor.execute("SELECT id, nom FROM usuaris")
@@ -143,7 +143,7 @@ def crear_rutina():
         series = int(request.form['series'])
         repeticions = int(request.form['repeticions'])
 
-    conn = connect_db()
+    conn = conectar_db()
     cursor = conn.cursor()
 
     # Verificar si el ejercicio ya existe
@@ -192,7 +192,7 @@ def rutinas():
     user_name = session['user_name']  # Obtener el nombre desde la sesión
 
     # Conectar a la base de datos
-    conn = connect_db()
+    conn = conectar_db()
     cursor = conn.cursor()
 
     # Obtener las rutinas del usuario actual
@@ -249,7 +249,7 @@ def login():
         contrasenya = request.form["contrasenya"]  # Obtener la contraseña del formulario
 
         # Verificar si el nombre y la contraseña coinciden en la base de datos
-        conn = connect_db()
+        conn = conectar_db()
         cursor = conn.cursor()
         cursor.execute("SELECT id, contrasenya FROM usuaris WHERE nom = %s", (nom,))
         resultado = cursor.fetchone()

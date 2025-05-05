@@ -4,7 +4,7 @@ import sys
 
 DATABASE_NAME = "mariadb"
 
-def connect_server():
+def conectar_server():
     try:
         return mariadb.connect(
             user="root",
@@ -16,7 +16,7 @@ def connect_server():
         print(f"❌ Error conectando al servidor MariaDB: {e}")
         sys.exit(1)
 
-def connect_db():
+def conectar_db():
     try:
         return mariadb.connect(
             user="root",
@@ -29,8 +29,8 @@ def connect_db():
         print(f"❌ Error conectando a la base de datos '{DATABASE_NAME}': {e}")
         sys.exit(1)
 
-def create_database_if_not_exists():
-    conn = connect_server()
+def crear_base_de_dades_si_no_existeix():
+    conn = conectar_server()
     cursor = conn.cursor()
     try:
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DATABASE_NAME}")
@@ -42,8 +42,8 @@ def create_database_if_not_exists():
         cursor.close()
         conn.close()
 
-def create_tables_if_not_exists():
-    conn = connect_db()
+def crear_taules_si_no_existeixen():
+    conn = conectar_db()
     cursor = conn.cursor()
     try:
         print("Creando tablas...")
@@ -86,11 +86,11 @@ def create_tables_if_not_exists():
         cursor.close()
         conn.close()
 
-create_database_if_not_exists()
-create_tables_if_not_exists()
+crear_base_de_dades_si_no_existeix()
+crear_taules_si_no_existeixen()
 
-def registrar_usuario(nom, email, contrasenya, nivell="Principiant"):
-    conn = connect_db()
+def registrar_usuari(nom, email, contrasenya, nivell="Principiant"):
+    conn = conectar_db()
     cursor = conn.cursor()
 
     if nivell not in ["Principiant", "Intermedi", "Avançat"]:
@@ -113,8 +113,8 @@ def registrar_usuario(nom, email, contrasenya, nivell="Principiant"):
         cursor.close()
         conn.close()
 
-def verify_password(email, contrasenya):
-    conn = connect_db()
+def verificar_contrasenya(email, contrasenya):
+    conn = conectar_db()
     cursor = conn.cursor()
 
     try:
@@ -139,8 +139,8 @@ def verify_password(email, contrasenya):
         cursor.close()
         conn.close()
 
-def get_user_level(email):
-    conn = connect_db()
+def obtenir_nivell_usuari(email):
+    conn = conectar_db()
     cursor = conn.cursor()
 
     try:
@@ -154,8 +154,8 @@ def get_user_level(email):
         cursor.close()
         conn.close()
 
-def get_all_users():
-    conn = connect_db()
+def obtenir_tots_els_usuaris():
+    conn = conectar_db()
     cursor = conn.cursor()
 
     try:
@@ -168,8 +168,8 @@ def get_all_users():
         cursor.close()
         conn.close()
 
-def add_exercise(nom, tipus=None, unitat=None, estimul=None):
-    conn = connect_db()
+def afegir_exercici(nom, tipus=None, unitat=None, estimul=None):
+    conn = conectar_db()
     cursor = conn.cursor()
 
     if estimul is None:
@@ -199,8 +199,8 @@ def add_exercise(nom, tipus=None, unitat=None, estimul=None):
         cursor.close()
         conn.close()
 
-def get_all_exercises():
-    conn = connect_db()
+def obtenir_tots_els_exercicis():
+    conn = conectar_db()
     cursor = conn.cursor()
 
     try:
@@ -216,11 +216,11 @@ def get_all_exercises():
 # Ejemplo de uso:
 if __name__ == "__main__":
     # Verificar estructura de la tabla
-    create_database_if_not_exists()
-    create_tables_if_not_exists()
+    crear_base_de_dades_si_no_existeix()
+    crear_taules_si_no_existeixen()
 
     # Mostrar todos los ejercicios
-    exercises = get_all_exercises()
+    exercises = obtenir_tots_els_exercicis()
     print("\nEjercicios en la base de datos:")
     for exercise in exercises:
         print(exercise)
