@@ -74,7 +74,7 @@ class Entrenament:
         self.data = data
         self.valor = valor
 
-    def to_list(self):
+    def per_llistar(self):
         return [self.usuari, self.tipus, self.data, self.valor, ""]
 
 class Cardio(Entrenament):
@@ -86,7 +86,7 @@ class Forca(Entrenament):
         super().__init__(usuari, "Força", data, kg)
         self.repeticions = repeticions
 
-    def to_list(self):
+    def per_llistar(self):
         return [self.usuari, self.tipus, self.data, self.valor, self.repeticions]
 
 
@@ -104,7 +104,7 @@ def guardar_entrenament(entrenament):
     except Exception as e:
         print(f"Error guardando entrenamiento: {e}")
 
-def load_entrenaments():
+def carregar_entrenaments():
     entrenaments = []
     try:
         with open("entrenaments.csv", mode='r') as file:
@@ -282,12 +282,9 @@ def logout():
     session.clear()  # Limpia la sesión
     return redirect(url_for("login"))  # Redirige a la página de inicio
 
-    
-
-
 @app.route("/progress/<usuari>")
 def progress(usuari):
-    entrenaments = load_entrenaments()
+    entrenaments = carregar_entrenaments()
     user_data = [e for e in entrenaments if e["usuari"] == usuari]
 
     if not user_data:
@@ -306,7 +303,6 @@ def progress(usuari):
     plt.savefig("static/progress.png")
 
     return render_template("user_progress.html", usuari=usuari, grafico="static/progress.png")
-
 
 # --------------------------
 # Main
