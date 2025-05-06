@@ -3,29 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
-
+    <link rel="stylesheet" href="../static/login2.css">
     <title>Iniciar Sesión</title>
 </head>
 <body>
-    <h1>Iniciar Sesión</h1>
+    <div class="login">
+        <!-- Vídeo de fons -->
+        <video class="login__video" autoplay muted loop>
+            <source src="{{ url_for('static', filename='fitnes.mp4') }}" type="video/mp4">
+            Tu navegador no soporta el video.
+        </video>
 
-    <form method="POST">
-        <label for="nom">Nombre:</label>
-        <input type="text" id="nom" name="nom" required><br><br>
+        <!-- Formulari d'inici de sessió -->
+        <form class="login__form" method="POST">
+            <h1 class="login__title">Iniciar Sesión</h1>
 
-        <label for="contrasenya">Contraseña:</label>
-        <input type="password" id="contrasenya" name="contrasenya" required><br><br>
+            <!-- Missatge d'error (si n'hi ha) -->
+            <div class="login__error">
+                {% if error %}
+                    <p>{{ error }}</p>
+                {% endif %}
+            </div>
 
-        <button type="submit">Iniciar sesión</button>
-    </form>
+            <!-- Camps del formulari -->
+            <div class="login__content">
+                <div class="login__box">
+                    <input type="text" id="nom" name="nom" class="login__input" required placeholder="Introduce tu nombre">
+                </div>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+                <div class="login__box">
+                    <input type="password" id="contrasenya" name="contrasenya" class="login__input" required placeholder="Introduce tu contraseña">
+                </div>
+            </div>
 
-    <!-- Enlace para registrar una nueva cuenta si no tienen una -->
-    <p>¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
+            <!-- Botó per a l'inici de sessió -->
+            <button type="submit" class="login__button">Iniciar sesión</button>
 
+            <!-- Enllaç per al registre -->
+            <div class="login__register">
+                <p>¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
