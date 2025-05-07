@@ -46,7 +46,7 @@
                 </div>
 
                 <!-- Grupo muscular -->
-                <div class="form-group">
+                <div class="form-group" id="grup-muscular">
                     <label for="estimul">Grupo muscular:</label>
                     <select id="estimul" name="estimul" required>
                         <option value="">Selecciona un grupo muscular</option>
@@ -147,7 +147,7 @@
 
         function afegirExercici() {
             const nou = obtenirDadesFormulari();
-            if (!nou.tipus || !nou.estimul || !nou.exercici || !nou.series || !nou.repeticions) {
+            if (!nou.tipus || (!nou.estimul && nou.tipus !== "Cardio") || !nou.exercici || !nou.series || !nou.repeticions) {
                 alert("Completa tots els camps abans d'afegir.");
                 return;
             }
@@ -169,6 +169,7 @@
             document.getElementById("series").value = ex.series;
             document.getElementById("repeticions").value = ex.repeticions;
             editarIndex = index;
+            actualitzarVisibilitatGrupMuscular();
         }
 
         function editarExercici() {
@@ -188,6 +189,27 @@
             editarIndex = -1;
             actualitzarLlista();
         }
+
+        function actualitzarVisibilitatGrupMuscular() {
+            const tipusSeleccionat = document.getElementById("tipus").value;
+            const grupMuscularDiv = document.getElementById("grup-muscular");
+            const estimul = document.getElementById("estimul");
+
+            if (tipusSeleccionat === "Cardio") {
+                grupMuscularDiv.style.display = "none";
+                estimul.removeAttribute("required");
+                estimul.value = "";
+            } else {
+                grupMuscularDiv.style.display = "block";
+                estimul.setAttribute("required", "required");
+            }
+        }
+
+        document.getElementById("tipus").addEventListener("change", actualitzarVisibilitatGrupMuscular);
+
+        window.addEventListener("DOMContentLoaded", () => {
+            actualitzarVisibilitatGrupMuscular();
+        });
     </script>
 </body>
 </html>
