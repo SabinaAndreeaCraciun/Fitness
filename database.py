@@ -113,3 +113,50 @@ def registrar_usuari(nom, email, contrasenya, nivell="Principiant"):
         cursor.close()
         conn.close()
 
+def afegir_exercici(exercici_nombre, tipus, estimul):
+    conn = conectar_db()
+    cursor = conn.cursor()
+
+    # Verificar si el ejercicio ya existe
+    cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nombre,))
+    exercici = cursor.fetchone()
+    
+    if not exercici:
+        try:
+            cursor.execute("INSERT INTO exercicis (nom, tipus, unitat, estimul) VALUES (%s, %s, %s, %s)",
+                           (exercici_nombre, tipus, 'reps', estimul))
+            conn.commit()
+            cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nombre,))
+            result = cursor.fetchone()
+            if result:
+                exercici_id = result[0]
+                return exercici_id
+            else:
+                return None
+        
+        except Exception as e:
+            print(f"❌ Error creando ejercicio: {e}")
+            conn.rollback()
+            cursor.close()
+            conn.close()
+            #return redirect(url_for("crear_rutina", error="Error creando el ejercicio"))
+    else:
+        exercici_id = exercici[0]
+        return exercici_id
+
+def afegir_rutina(usuari_id, exercici_id, series, repeticions ):
+    conn = conectar_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
+                       (usuari_id, exercici_id, series, repeticions))
+        conn.commit()
+        #return redirect(url_for("rutinas"))
+    except Exception as e:
+        print(f"❌ Error creando la rutina: {e}")
+        conn.rollback()
+        #return redirect(url_for("crear_rutina", error="Error creando rutina"))
+    finally:
+        cursor.close()
+        conn.close()
+

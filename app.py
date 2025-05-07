@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for, session
-from database import conectar_db, registrar_usuari  # Asegúrate de que este archivo tenga la conexión
+from database import conectar_db, registrar_usuari, afegir_exercici, afegir_rutina  # Asegúrate de que este archivo tenga la conexión
 import bcrypt
 import csv
 import matplotlib.pyplot as plt
@@ -97,44 +97,11 @@ def crear_rutina():
         series = int(request.form['series'])
         repeticions = int(request.form['repeticions'])
 
-    conn = conectar_db()
-    cursor = conn.cursor()
-
-    # Verificar si el ejercicio ya existe
-    cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nombre,))
-    exercici = cursor.fetchone()
-
-    if not exercici:
-        try:
-            cursor.execute("INSERT INTO exercicis (nom, tipus, unitat, estimul) VALUES (%s, %s, %s, %s)",
-                           (exercici_nombre, tipus, 'reps', estimul))
-            conn.commit()
-            cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nombre,))
-            exercici_id = cursor.fetchone()[0]
-        except Exception as e:
-            print(f"❌ Error creando ejercicio: {e}")
-            conn.rollback()
-            cursor.close()
-            conn.close()
-            return redirect(url_for("crear_rutina", error="Error creando el ejercicio"))
-    else:
-        exercici_id = exercici[0]
-
+    exercici_id = afegir_exercici(exercici_nombre, tipus, estimul)    
     # Insertar en rutines
     usuari_id = session.get("user_id")
-    try:
-        cursor.execute("INSERT INTO rutines (usuari_id, exercici_id, series, repeticions) VALUES (%s, %s, %s, %s)",
-                       (usuari_id, exercici_id, series, repeticions))
-        conn.commit()
-        return redirect(url_for("rutinas"))
-    except Exception as e:
-        print(f"❌ Error creando la rutina: {e}")
-        conn.rollback()
-        return redirect(url_for("crear_rutina", error="Error creando rutina"))
-    finally:
-        cursor.close()
-        conn.close()
-
+    afegir_rutina(usuari_id, exercici_id, series, repeticions)
+    return redirect(url_for("rutinas"))
 
 @app.route("/rutinas")
 def rutinas():
@@ -163,8 +130,6 @@ def rutinas():
     conn.close()
 
     return render_template("rutinas.html", rutinas=rutinas, user_name=user_name)
-
-
 
 # --------------------------
 # Rutas adicionales
