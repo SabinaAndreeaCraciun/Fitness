@@ -1,30 +1,35 @@
-/* Reset básico */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* Reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Estilo general del body */
+/* Estil general del body */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #0b0b0d;
+    color: #e0e0e0;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
     justify-content: flex-start;
+    padding-bottom: 40px;
 }
 
-/* Barra de navegación */
+/* Barra de navegació */
 header {
     width: 100%;
-    background-color: #333;
-    padding: 15px 0;
+    background-color: #131316;
+    padding: 20px 0;
     position: sticky;
     top: 0;
     z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.3s ease;
 }
 
 .navbar {
@@ -37,72 +42,84 @@ header {
 }
 
 .navbar .logo {
-    color: #fff;
-    font-size: 1.8rem;
-    font-weight: bold;
+    color: #ff1111;
+    font-size: 2.2rem;
+    font-weight: 700;
     text-decoration: none;
+    letter-spacing: 1px;
 }
 
 .navbar ul {
     display: flex;
     list-style: none;
-}
-
-.navbar ul li {
-    margin-left: 25px;
+    margin-left: auto;
+    gap: 20px;
 }
 
 .navbar ul li a {
-    color: #fff;
+    color: white;
     text-decoration: none;
-    font-size: 1rem;
-    transition: color 0.3s ease, transform 0.3s ease;
+    font-size: 1.1rem;
+    padding: 12px 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-weight: 600;
 }
 
 .navbar ul li a:hover {
-    color: #3498db;
-    transform: translateY(-3px);
+    background-color: #1f1f23;
+    color: #ff1111;
+    transform: translateY(-4px);
 }
 
+/* Botons de login/logout */
 .navbar .btn-login, .navbar .btn-logout {
-    background-color: #3498db;
-    padding: 8px 20px;
-    border-radius: 4px;
+    background-color: #ff1111;
+    padding: 10px 22px;
+    border-radius: 30px;
     color: white;
     font-weight: bold;
     text-transform: uppercase;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .navbar .btn-login:hover, .navbar .btn-logout:hover {
-    background-color: #2980b9;
+    background-color: #e00909;
+    transform: scale(1.05);
 }
 
-/* Sección de bienvenida */
+/* Secció de benvinguda */
 .welcome-section {
     text-align: center;
     margin-top: 100px;
-    padding: 40px 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
+    padding: 50px 25px;
+    background-color: #16161a;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    max-width: 900px;
     width: 100%;
     margin-bottom: 50px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.welcome-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
 }
 
 .welcome-section h1 {
-    color: #333;
-    font-size: 2rem;
+    color: #ff1111;
+    font-size: 2.6rem;
     margin-bottom: 20px;
+    font-weight: 700;
 }
 
 .welcome-section p {
-    font-size: 1.1rem;
-    color: #555;
+    font-size: 1.2rem;
+    color: white;
 }
 
-/* Sección de opciones */
+/* Secció d'opcions */
 .options-section {
     width: 100%;
     max-width: 800px;
@@ -113,58 +130,60 @@ header {
 
 .options-section h2 {
     margin-bottom: 25px;
-    font-size: 1.5rem;
-    color: #333;
+    font-size: 1.8rem;
+    color: white;
+    font-weight: 600;
 }
 
 .option-links {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 18px;
     justify-content: center;
 }
 
 .option-links a {
     text-decoration: none;
-    padding: 12px 20px;
+    padding: 14px 22px;
     border-radius: 8px;
     display: inline-block;
-    font-weight: bold;
+    font-weight: 600;
     transition: background-color 0.3s ease, transform 0.3s ease;
     text-align: center;
+    font-size: 1.1rem;
 }
 
 .option-links .btn-primary {
-    background-color: #3498db;
+    background-color: #ff1111;
     color: white;
 }
 
 .option-links .btn-primary:hover {
-    background-color: #2980b9;
-    transform: translateY(-3px);
+    background-color: #e00909;
+    transform: translateY(-5px);
 }
 
 .option-links .btn-secondary {
-    background-color: #2ecc71;
+    background-color: #e00909;
     color: white;
 }
 
 .option-links .btn-secondary:hover {
-    background-color: #27ae60;
-    transform: translateY(-3px);
+    background-color: #e00909;
+    transform: translateY(-5px);
 }
 
 .option-links .btn-tertiary {
-    background-color: #f39c12;
+    background-color: #e00909;
     color: white;
 }
 
 .option-links .btn-tertiary:hover {
-    background-color: #e67e22;
-    transform: translateY(-3px);
+    background-color: #e00909;
+    transform: translateY(-5px);
 }
 
-/* Mejorar la legibilidad y la organización del diseño */
+/* Millorar la llegibilitat i l'organització del disseny */
 main {
     display: flex;
     flex-direction: column;
@@ -175,15 +194,36 @@ main {
     max-width: 1200px;
 }
 
-/* Diseño responsivo */
+/* Millores en la tipografia */
+h1, h2, h3 {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+p, span, a {
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
         align-items: flex-start;
     }
 
+    .navbar ul {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .welcome-section {
+        margin-top: 50px;
+        padding: 30px;
+    }
+
     .option-links {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
     }
 }
