@@ -41,8 +41,8 @@ header {
 
 .navbar .logo {
     color: #ff1111;
-    font-size: 2rem;
-    font-weight: bold;
+    font-size: 2.2rem;
+    font-weight: 700;
     text-decoration: none;
     letter-spacing: 1px;
 }
@@ -54,6 +54,7 @@ header {
     gap: 20px;
 }
 
+
 .navbar ul li a {
     color: #e0e0e0;
     text-decoration: none;
@@ -63,10 +64,27 @@ header {
     transition: all 0.3s ease;
 }
 
+
 .navbar ul li a:hover {
     background-color: #1f1f23;
     color: #ff1111;
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+}
+
+/* Botons de login/logout */
+.navbar .btn-login, .navbar .btn-logout {
+    background-color: #ff1111;
+    padding: 10px 22px;
+    border-radius: 30px;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar .btn-login:hover, .navbar .btn-logout:hover {
+    background-color: #e00909;
+    transform: scale(1.05);
 }
 
 /* Contenidor del formulari */
