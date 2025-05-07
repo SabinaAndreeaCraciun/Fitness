@@ -113,28 +113,3 @@ def registrar_usuari(nom, email, contrasenya, nivell="Principiant"):
         cursor.close()
         conn.close()
 
-def obtenir_tots_els_exercicis():
-    conn = conectar_db()
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute("SELECT id, estimul, nom, tipus FROM exercicis")
-        return cursor.fetchall()
-    except mariadb.Error as e:
-        print(f"❌ Error al obtener los ejercicios: {e}")
-        return []
-    finally:
-        cursor.close()
-        conn.close()
-
-# Ejemplo de uso:
-if __name__ == "__main__":
-    # Verificar estructura de la tabla
-    crear_base_de_dades_si_no_existeix()
-    crear_taules_si_no_existeixen()
-
-    # Mostrar todos los ejercicios
-    exercises = obtenir_tots_els_exercicis()
-    print("\nEjercicios en la base de datos:")
-    for exercise in exercises:
-        print(exercise)
