@@ -25,43 +25,6 @@ class Usuari:
         except Exception as e:
             print(f"❌ Error guardando el usuario: {e}")
             return False
-        
-    @staticmethod
-    def verificar(email, contrasenya_entrada):
-        conn = conectar_db()
-        cursor = conn.cursor()
-
-        try:
-            cursor.execute("SELECT contrasenya FROM usuaris WHERE email = %s", (email,))
-            resultado = cursor.fetchone()
-
-            if resultado:
-                contrasenya_guardada = resultado[0]
-                if bcrypt.checkpw(contrasenya_entrada.encode('utf-8'), contrasenya_guardada.encode('utf-8')):
-                    return True
-            return False
-        except Exception as e:
-            print(f"❌ Error verificando la contraseña: {e}")
-            return False
-        finally:
-            cursor.close()
-            conn.close()
-
-    @staticmethod
-    def obtenir_id(email):
-        conn = conectar_db()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("SELECT id FROM usuaris WHERE email = %s", (email,))
-            resultado = cursor.fetchone()
-            return resultado[0] if resultado else None
-        except Exception as e:
-            print(f"❌ Error obteniendo ID del usuario: {e}")
-            return None
-        finally:
-            cursor.close()
-            conn.close()
-
 
 # --------------------------
 # Clases Entrenament y Subclases
@@ -93,7 +56,7 @@ class Forca(Entrenament):
 # --------------------------
 # Funciones para guardar entrenamientos
 # --------------------------
-
+#To do esta funcio no se utilitza (modificar para mongodb o borrar)
 def guardar_entrenament(entrenament):
     try:
         with open("entrenaments.csv", mode='a', newline='') as file:
@@ -103,7 +66,8 @@ def guardar_entrenament(entrenament):
             writer.writerow(entrenament.to_list())
     except Exception as e:
         print(f"Error guardando entrenamiento: {e}")
-
+        
+#Aixo es deberia de carregar desde mongodb no desde un csv (si se utilitza)
 def carregar_entrenaments():
     entrenaments = []
     try:
@@ -124,17 +88,7 @@ def carregar_entrenaments():
 @app.route("/crear_rutina", methods=["GET", "POST"])
 def crear_rutina():
     if request.method == "GET":
-        # Obtener los usuarios de la base de datos
-        conn = conectar_db()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT id, nom FROM usuaris")
-        usuaris = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        return render_template("crear_rutina.html", usuaris=usuaris)
+        return render_template("crear_rutina.html")
 
     elif request.method == "POST":
         exercici_nombre = request.form['exercici']
