@@ -5,39 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Rutinas</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='rutinas.css') }}">
-    <style>
-        .icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 0 5px;
-        }
-        .icon-btn:hover {
-            color: red;
-        }
-        .selected {
-            background-color: #ffd !important;
-        }
-    </style>
+    
 </head>
 <body>
 
-<header class="navbar">
-    <div class="logo">FitnessApp</div>
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
-            <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Progreso</a></li>
-            {% if session.get('user_id') %}
-                <li><a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
-            {% else %}
-                <li><a href="{{ url_for('login') }}">Iniciar sesión</a></li>
-            {% endif %}
-        </ul>
-    </nav>
-</header>
-
+    <header>
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
+            <ul>
+                <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
+                <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
+                <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Ver Progreso</a></li>
+                {% if session.get('user_id') %}
+                    <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn-login">Iniciar sesión</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
 <main class="container">
     <h2>Mis Rutinas</h2>
 
@@ -95,7 +81,6 @@
         const repeticions = fila.cells[3].textContent;
 
         alert(`Editar: ${exercici} - ${estimul} (${series}x${repeticions})`);
-        // Aquí pots redirigir a una pàgina d'edició o mostrar un formulari.
     }
 
     function esborrarFila(btn) {
