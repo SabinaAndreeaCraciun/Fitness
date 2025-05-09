@@ -160,3 +160,22 @@ def afegir_rutina(usuari_id, exercici_id, series, repeticions ):
         cursor.close()
         conn.close()
 
+def eliminar_exercici(id):
+    try:
+        conn = conectar_db()
+        cursor = conn.cursor()
+
+        # Eliminar de la taula rutines
+        cursor.execute("DELETE FROM rutines WHERE exercici_id = %s", (id,))
+        
+        # Eliminar de la taula exercicis
+        cursor.execute("DELETE FROM exercicis WHERE id = %s", (id,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    except mariadb.Error as e:
+        print(f"❌ Error al eliminar exercici: {e}")
+        return False
+

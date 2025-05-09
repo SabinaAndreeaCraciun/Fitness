@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Rutinas</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='rutinas.css') }}">
-    
 </head>
 <body>
 
@@ -24,80 +23,94 @@
             </ul>
         </nav>
     </header>
-<main class="container">
-    <h2>Mis Rutinas</h2>
 
-    {% if request.args.get('error') %}
-        <div class="alert">
-            {{ request.args.get('error') }}
-        </div>
-    {% endif %}
+    <main class="container">
+        <h2>Mis Rutinas</h2>
 
-    <div class="table-container">
-        <table id="taulaRutines">
-            <thead>
-                <tr>
-                    <th>Estímulo</th>
-                    <th>Ejercicio</th>
-                    <th>Series</th>
-                    <th>Repeticiones</th>
-                    <th>Accions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for rutina in rutinas %}
+        {% if request.args.get('error') %}
+            <div class="alert">
+                {{ request.args.get('error') }}
+            </div>
+        {% endif %}
+
+        <div class="table-container">
+            <table id="taulaRutines">
+                <thead>
                     <tr>
-                        <td>{{ rutina[2] }}</td>
-                        <td>{{ rutina[1] }}</td>
-                        <td>{{ rutina[3] }}</td>
-                        <td>{{ rutina[4] }}</td>
-                        <td>
-                            <button class="icon-btn" onclick="editarFila(this)">✏️</button>
-                            <button class="icon-btn" onclick="esborrarFila(this)">❌</button>
-                        </td>
+                        <th>Estímulo</th>
+                        <th>Ejercicio</th>
+                        <th>Series</th>
+                        <th>Repeticiones</th>
+                        <th>Acciones</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    {% for rutina in rutinas %}
+                        <tr data-id="{{ rutina[0] }}"> <!-- Agregar el ID como data-id -->
+                            <td>{{ rutina[2] }}</td>
+                            <td>{{ rutina[1] }}</td>
+                            <td>{{ rutina[3] }}</td>
+                            <td>{{ rutina[4] }}</td>
+                            <td>
+                                <button class="icon-btn" onclick="editarFila(this)">✏️</button>
+                                <button class="icon-btn" onclick="esborrarFila(this)">❌</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <div class="btn-center">
-        <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
-    </div>
-</main>
+        <div class="btn-center">
+            <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
+        </div>
+    </main>
 
-<script>
-    let filaSeleccionada = null;
+    <script>
+        let filaSeleccionada = null;
 
-    function editarFila(btn) {
-        const fila = btn.closest("tr");
-        deseleccionarFila();
-        fila.classList.add("selected");
-        filaSeleccionada = fila;
+        function editarFila(btn) {
+            const fila = btn.closest("tr");
+            deseleccionarFila();
+            fila.classList.add("selected");
+            filaSeleccionada = fila;
 
-        const estimul = fila.cells[0].textContent;
-        const exercici = fila.cells[1].textContent;
-        const series = fila.cells[2].textContent;
-        const repeticions = fila.cells[3].textContent;
+            const estimul = fila.cells[0].textContent;
+            const exercici = fila.cells[1].textContent;
+            const series = fila.cells[2].textContent;
+            const repeticions = fila.cells[3].textContent;
 
-        alert(`Editar: ${exercici} - ${estimul} (${series}x${repeticions})`);
-    }
-
-    function esborrarFila(btn) {
-        const fila = btn.closest("tr");
-        const exercici = fila.cells[1].textContent;
-
-        if (confirm(`Vols eliminar l'exercici: ${exercici}?`)) {
-            fila.remove();
-            filaSeleccionada = null;
+            alert(`Editar: ${exercici} - ${estimul} (${series}x${repeticions})`);
         }
-    }
 
-    function deseleccionarFila() {
-        const files = document.querySelectorAll("#taulaRutines tbody tr");
-        files.forEach(f => f.classList.remove("selected"));
+       function esborrarFila(btn) {
+    const fila = btn.closest("tr");
+    const exercici = fila.cells[1].textContent;  // Obtenim el nom de l'exercici
+    const exerciciId = fila.dataset.id;  // Obtenim l'ID de l'exercici des de l'atribut `data-id`
+
+    if (confirm(`Vols eliminar l'exercici: ${exercici}?`)) {
+        // Fem la crida DELETE per eliminar l'exercici
+        fetch(`/eliminar_exercici/${exerciciId}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.text().then(text => {
+            if (response.ok && text.includes('eliminat')) {
+                fila.remove();  // Elimina la fila visualment
+            } else {
+                alert('Error del servidor: ' + text);
+            }
+        }))
+        .catch(error => {
+            alert('Error al comunicar-se amb el servidor: ' + error.message);
+        });
     }
-</script>
+}
+
+        function deseleccionarFila() {
+            const files = document.querySelectorAll("#taulaRutines tbody tr");
+            files.forEach(f => f.classList.remove("selected"));
+        }
+    </script>
 
 </body>
 </html>

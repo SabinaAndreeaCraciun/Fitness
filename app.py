@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for, session
-from database import conectar_db, registrar_usuari, afegir_exercici, afegir_rutina  # Asegúrate de que este archivo tenga la conexión
+from database import conectar_db, registrar_usuari, afegir_exercici, afegir_rutina, eliminar_exercici  # Asegúrate de que este archivo tenga la conexión
 import bcrypt
 import csv
 import matplotlib.pyplot as plt
@@ -222,6 +222,14 @@ def progress(usuari):
     plt.savefig("static/progress.png")
 
     return render_template("user_progress.html", usuari=usuari, grafico="static/progress.png")
+
+@app.route('/eliminar_exercici/<int:id>', methods=['DELETE'])
+def eliminar_exercici_route(id):
+    resultat = eliminar_exercici(id)  # Crida a la funció que elimina l'exercici
+    if resultat:
+        return f"Exercici {id} eliminat", 200
+    else:
+        return "Error al eliminar", 500
 
 # --------------------------
 # Main
