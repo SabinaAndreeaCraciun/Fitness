@@ -1,8 +1,11 @@
-from flask import Flask, request, render_template, redirect, url_for, session
-from database import conectar_db, registrar_usuari, afegir_exercici, afegir_rutina, eliminar_exercici  # Asegúrate de que este archivo tenga la conexión
+from flask import Flask, request, render_template, redirect, url_for, session, jsonify
+from database import conectar_db, registrar_usuari, afegir_exercici, afegir_rutina, eliminar_exercici # Asegúrate de que este archivo tenga la conexión
 import bcrypt
 import csv
 import matplotlib.pyplot as plt
+from mongo import afegir_progres  # Ja no cal col_progressos directament
+from datetime import datetime
+from mongo import db
 
 app = Flask(__name__)
 app.secret_key = "supersecreto123"  # Necesario para usar sesiones
@@ -201,28 +204,6 @@ def logout():
     session.clear()  # Limpia la sesión
     return redirect(url_for("login"))  # Redirige a la página de inicio
 
-@app.route("/progress/<usuari>")
-def progress(usuari):
-    entrenaments = carregar_entrenaments()
-    user_data = [e for e in entrenaments if e["usuari"] == usuari]
-
-    if not user_data:
-        return "No hay datos para este usuario."
-
-    fechas = [e["data"] for e in user_data]
-    valores = [float(e["valor"]) for e in user_data]
-
-    plt.figure()
-    plt.plot(fechas, valores, marker='o')
-    plt.title(f"Progreso de {usuari}")
-    plt.xlabel("Fecha")
-    plt.ylabel("Valor")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig("static/progress.png")
-
-    return render_template("user_progress.html", usuari=usuari, grafico="static/progress.png")
-
 @app.route('/eliminar_exercici/<int:id>', methods=['DELETE'])
 def eliminar_exercici_route(id):
     resultat = eliminar_exercici(id)  # Crida a la funció que elimina l'exercici
@@ -230,6 +211,40 @@ def eliminar_exercici_route(id):
         return f"Exercici {id} eliminat", 200
     else:
         return "Error al eliminar", 500
+    
+@app.route('/completar_rutina', methods=['POST'])
+def completar_rutina():
+    data = request.get_json()
+    usuari_id = data.get('usuari_id')
+    exercici_id = data.get('exercici_id')
+    completado = data.get('completado')
+
+    if not usuari_id or not exercici_id:
+        return jsonify({"error": "Falten camps obligatoris"}), 400
+
+    # Aquí deberías tener una función que guarde el progreso
+    afegir_progres(usuari_id, exercici_id, completado)
+
+    return jsonify({"missatge": "Estado del ejercicio actualizado"}), 200
+
+@app.route('/progress/<int:usuari_id>')
+def progress(usuari_id):
+    print(f"Buscando progresos para el usuario con ID: {usuari_id}")
+    
+    # Buscar en la base de datos por el usuario
+    registro = col_progressos.find_one({'usuari_id': usuari_id})
+    
+    if registro:
+        progressos = registro.get('progressos', [])
+        message = None
+    else:
+        progressos = []
+        message = "No tienes progresos completados aún."
+    
+    return render_template('user_progress.html', progressos=progressos, message=message, usuari_id=usuari_id)
+
+
+col_progressos = db['progressos']  # Nombre de tu colección
 
 # --------------------------
 # Main

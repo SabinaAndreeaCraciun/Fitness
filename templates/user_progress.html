@@ -3,34 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progreso de {{ usuari }}</title>
+    <title>Progreso de {{ usuari_id }}</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <h1>Progreso de {{ usuari }}</h1>
+    <h1>Progreso de Usuario {{ usuari_id }}</h1>
     
-    {% if entrenaments %}
-    <table border="1">
+    {% if progressos %}
+    <table>
         <thead>
             <tr>
-                <th>Tipo de Entrenamiento</th>
+                <th>Ejercicio</th>
                 <th>Fecha</th>
                 <th>Valor</th>
-                <th>Repeticiones</th>
             </tr>
         </thead>
         <tbody>
-            {% for entrenamiento in entrenaments %}
+            {% for progreso in progressos %}
             <tr>
-                <td>{{ entrenamiento['tipus'] }}</td>
-                <td>{{ entrenamiento['data'] }}</td>
-                <td>{{ entrenamiento['valor'] }}</td>
-                <td>{{ entrenamiento['repeticions'] if entrenamiento['tipus'] == 'Força' else 'N/A' }}</td>
+                <td>{{ progreso['exercici'] }}</td>
+                <td>{{ progreso['data'] }}</td>
+                <td>{{ progreso['valor'] }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <p>No se han registrado entrenamientos para este usuario.</p>
+    <p>{{ message }}</p>
     {% endif %}
     
     <br>
