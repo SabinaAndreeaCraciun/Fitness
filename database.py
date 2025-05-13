@@ -178,4 +178,3 @@ def eliminar_exercici(id):
     except mariadb.Error as e:
         print(f"❌ Error al eliminar exercici: {e}")
         return False
-

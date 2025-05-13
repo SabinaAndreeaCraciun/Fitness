@@ -5,52 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Rutinas</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='rutinas.css') }}">
-    <style>
-        /* Mejor organización de los estilos */
-        .select-checkbox {
-            width: 20px;
-            height: 20px;
-            margin-left: 10px;
-            cursor: pointer;
-        }
-        
-        .alert {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .selected {
-            background-color: #e9f7fe;
-        }
-
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 15px;
-            border-radius: 5px;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .notification.success {
-            background-color: #28a745;
-        }
-
-        .notification.info {
-            background-color: #007bff;
-        }
-
-        .fade-out {
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-    </style>
 </head>
 <body>
 
@@ -60,9 +14,7 @@
             <ul>
                 <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
                 <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
-        <li><a href="{{ url_for('progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
-
-
+                <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Ver Progreso</a></li>
                 {% if session.get('user_id') %}
                     <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
                 {% else %}
@@ -76,19 +28,12 @@
         <h2>Mis Rutinas</h2>
 
         {% if request.args.get('error') %}
-            <div class="alert alert-danger">
+            <div class="alert">
                 {{ request.args.get('error') }}
             </div>
         {% endif %}
 
-        {% if request.args.get('success') %}
-            <div class="alert alert-success">
-                {{ request.args.get('success') }}
-            </div>
-        {% endif %}
-
         <div class="table-container">
-            {% if rutinas %}
             <table id="taulaRutines">
                 <thead>
                     <tr>
@@ -97,30 +42,23 @@
                         <th>Series</th>
                         <th>Repeticiones</th>
                         <th>Acciones</th>
-                        <th>Completado</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for rutina in rutinas %}
-                    <tr data-id="{{ rutina[0] }}">
-                        <td>{{ rutina[2] }}</td>
-                        <td>{{ rutina[1] }}</td>
-                        <td>{{ rutina[3] }}</td>
-                        <td>{{ rutina[4] }}</td>
-                        <td class="action-buttons">
-                            <button class="icon-btn edit-btn" onclick="editarFila(this)" title="Editar ejercicio">✏️</button>
-                            <button class="icon-btn delete-btn" onclick="esborrarFila(this)" title="Eliminar ejercicio">❌</button>
-                        </td>
-                        <td>
-                            <input type="checkbox" class="select-checkbox" onchange="enviarExercici(this)" required>
-                        </td>
-                    </tr>
+                        <tr data-id="{{ rutina[0] }}"> <!-- Agregar el ID como data-id -->
+                            <td>{{ rutina[2] }}</td>
+                            <td>{{ rutina[1] }}</td>
+                            <td>{{ rutina[3] }}</td>
+                            <td>{{ rutina[4] }}</td>
+                            <td>
+                                <button class="icon-btn" onclick="editarFila(this)">✏️</button>
+                                <button class="icon-btn" onclick="esborrarFila(this)">❌</button>
+                            </td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            {% else %}
-                <p class="no-routines">No tienes rutinas creadas. <a href="{{ url_for('crear_rutina') }}">Crea tu primera rutina</a></p>
-            {% endif %}
         </div>
 
         <div class="btn-center">
@@ -131,7 +69,6 @@
     <script>
         let filaSeleccionada = null;
 
-        // Función para editar una fila
         function editarFila(btn) {
             const fila = btn.closest("tr");
             deseleccionarFila();
@@ -142,106 +79,38 @@
             const exercici = fila.cells[1].textContent;
             const series = fila.cells[2].textContent;
             const repeticions = fila.cells[3].textContent;
-            const exerciciId = fila.dataset.id;
 
-            // Redirigir a página de edición o mostrar modal
-            window.location.href = `/editar_rutina/${exerciciId}`;
+            alert(`Editar: ${exercici} - ${estimul} (${series}x${repeticions})`);
         }
 
-        // Función para eliminar una fila
-        async function esborrarFila(btn) {
-            const fila = btn.closest("tr");
-            const exercici = fila.cells[1].textContent;
-            const exerciciId = fila.dataset.id;
+       function esborrarFila(btn) {
+    const fila = btn.closest("tr");
+    const exercici = fila.cells[1].textContent;  // Obtenim el nom de l'exercici
+    const exerciciId = fila.dataset.id;  // Obtenim l'ID de l'exercici des de l'atribut `data-id`
 
-            if (confirm(`¿Estás seguro de que quieres eliminar el ejercicio: ${exercici}?`)) {
-                try {
-                    const response = await fetch(`/eliminar_exercici/${exerciciId}`, {
-                        method: 'DELETE',
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok && data.status === 'success') {
-                        fila.remove();
-                        // Mostrar mensaje de éxito
-                        window.location.href = "{{ url_for('rutinas') }}?success=" + encodeURIComponent(data.message);
-                    } else {
-                        alert('Error: ' + (data.message || 'No se pudo eliminar el ejercicio'));
-                    }
-                } catch (error) {
-                    alert('Error de conexión: ' + error.message);
-                }
+    if (confirm(`Vols eliminar l'exercici: ${exercici}?`)) {
+        // Fem la crida DELETE per eliminar l'exercici
+        fetch(`/eliminar_exercici/${exerciciId}`, {
+            method: 'DELETE',
+        })
+        .then(response => response.text().then(text => {
+            if (response.ok && text.includes('eliminat')) {
+                fila.remove();  // Elimina la fila visualment
+            } else {
+                alert('Error del servidor: ' + text);
             }
-        }
+        }))
+        .catch(error => {
+            alert('Error al comunicar-se amb el servidor: ' + error.message);
+        });
+    }
+}
 
-        // Función para deseleccionar la fila
         function deseleccionarFila() {
             const files = document.querySelectorAll("#taulaRutines tbody tr");
             files.forEach(f => f.classList.remove("selected"));
         }
-
-        // Función para actualizar el estado de completado de un ejercicio
-        async function enviarExercici(checkbox) {
-            const fila = checkbox.closest("tr");
-            const exerciciId = fila.dataset.id;
-            const completado = checkbox.checked;
-
-            // Obtener valores de las celdas de la fila
-            const estimul = fila.cells[0].textContent.trim();
-            const exercici = fila.cells[1].textContent.trim();
-            const series = fila.cells[2].textContent.trim();
-            const repeticions = fila.cells[3].textContent.trim();
-
-            // Imprimir valores de las celdas para depuración
-            console.log("Estímulo:", estimul);
-            console.log("Ejercicio:", exercici);
-            console.log("Series:", series);
-            console.log("Repeticiones:", repeticions);
-
-            // Validar si la fila tiene todos los campos obligatorios
-            if (!exerciciId || !{{ session['user_id'] }} || !estimul || !exercici || !series || !repeticions) {
-                alert('Por favor, asegúrate de que todos los campos obligatorios estén completos.');
-                checkbox.checked = !completado;  // Revertir el cambio si falta algún campo
-                return;
-            }
-
-            try {
-                const response = await fetch("/completar_rutina", {
-                    method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        usuari_id: {{ session['user_id'] }},
-                        exercici_id: exerciciId,
-                        completado: completado
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (response.ok) {
-                    // Mostrar notificación
-                    const notification = document.createElement('div');
-                    notification.className = 'notification ' + (completado ? 'success' : 'info');
-                    notification.textContent = completado ? '✔ ' + data.missatge : '✖ ' + (data.missatge || 'Ejercicio marcado como no completado');
-                    document.body.appendChild(notification);
-                    
-                    // Desaparecer la notificación después de 3 segundos
-                    setTimeout(() => {
-                        notification.classList.add('fade-out');
-                        setTimeout(() => notification.remove(), 500);
-                    }, 3000);
-                } else {
-                    checkbox.checked = !completado;  // Revertir el cambio
-                    alert(data.error || 'Error al actualizar el estado');
-                }
-            } catch (error) {
-                checkbox.checked = !completado;  // Revertir el cambio
-                alert("Error de conexión: " + error.message);
-            }
-        }
     </script>
+
 </body>
 </html>

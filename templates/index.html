@@ -14,9 +14,7 @@
             <ul>
                 <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
                 <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
-                <li><a href="{{ url_for('progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
-
-
+                <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Ver Progreso</a></li>
 
                 <!-- Si el usuario está autenticado, muestra la opción de cerrar sesión -->
                 {% if session.get('user_id') %}
@@ -44,10 +42,7 @@
             <div class="option-links">
                 <a href="{{ url_for('crear_rutina') }}" class="btn-primary">Crear una nueva rutina</a>
                 <a href="{{ url_for('rutinas') }}" class="btn-secondary">Ver mis rutinas</a>
-                <a href="{{ url_for('progress', usuari_id=session['user_id']) }}" class="btn-tertiary">Ver Progreso</a>
-
-
-
+                <a href="{{ url_for('progress', usuari=session['user_name']) }}" class="btn-tertiary">Ver mi progreso</a>
             </div>
         </section>
     </main>
