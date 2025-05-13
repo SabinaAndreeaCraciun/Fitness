@@ -14,7 +14,7 @@
             <ul>
                 <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
                 <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
-                <li><a href="{{ url_for('progress', usuari=session['user_name']) }}">Ver Progreso</a></li>
+                <li><a href="{{ url_for('user_progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
                 {% if session.get('user_id') %}
                     <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
                 {% else %}
@@ -32,7 +32,7 @@
                 {{ request.args.get('error') }}
             </div>
         {% endif %}
-
+        <form action="{{ url_for('completar_rutina', usuari_id=session['user_id']) }}" method="POST"></form>
         <div class="table-container">
             <table id="taulaRutines">
                 <thead>
@@ -41,30 +41,39 @@
                         <th>Ejercicio</th>
                         <th>Series</th>
                         <th>Repeticiones</th>
+                        <th>Completado</th>
                         <th>Acciones</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
                     {% for rutina in rutinas %}
-                        <tr data-id="{{ rutina[0] }}"> <!-- Agregar el ID como data-id -->
+                        <tr data-id="{{ rutina[0] }}"> 
                             <td>{{ rutina[2] }}</td>
                             <td>{{ rutina[1] }}</td>
                             <td>{{ rutina[3] }}</td>
                             <td>{{ rutina[4] }}</td>
                             <td>
-                                <button class="icon-btn" onclick="editarFila(this)">✏️</button>
-                                <button class="icon-btn" onclick="esborrarFila(this)">❌</button>
+                                <input type="checkbox" name="rutinas_completadas" value="{{ rutina[0] }}">
                             </td>
-                        </tr>
+                            <td>
+                                <button type="button" class="icon-btn edit-btn" onclick="editarFila(this)" title="Editar ejercicio">✏</button>
+                                <button type="button" class="icon-btn delete-btn" onclick="esborrarFila(this)" title="Eliminar ejercicio">❌</button>
+                            </td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-
-        <div class="btn-center">
-            <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
+    <div class="btn-center">
+            <button type="submit" class="btn">Enviar Progreso</button>
         </div>
-    </main>
+    </form>
+
+    <div class="btn-center">
+        <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
+    </div>
+</main>
 
     <script>
         let filaSeleccionada = null;

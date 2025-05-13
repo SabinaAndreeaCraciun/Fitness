@@ -9,6 +9,10 @@ col_progressos = db["progressos"]
 def afegir_progres(usuari_id, exercici, valor):
     data_actual = datetime.now().strftime("%Y-%m-%d")
 
+    if not exercici or valor is None:
+        print("Error: 'exercici' o 'valor' no poden ser buits.")
+        return
+
     nou_progres = {
         "exercici": exercici,
         "data": data_actual,

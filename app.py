@@ -4,6 +4,9 @@ import bcrypt
 import csv
 import matplotlib.pyplot as plt
 import mariadb
+from pymongo import MongoClient
+from datetime import datetime
+from mongo import col_progressos
 
 app = Flask(__name__)
 app.secret_key = "supersecreto123"  # Necesario para usar sesiones
@@ -249,7 +252,61 @@ def editar_rutina(id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route("/user_progress/<int:usuari_id>")
+def user_progress(usuari_id):
+    # Recuperar el progreso del usuario desde MongoDB
+    usuari = col_progressos.find_one({"usuari_id": usuari_id})
 
+    if usuari:
+        # Pasar los progresos a la plantilla
+        return render_template("user_progress.html", progressos=usuari["progressos"], usuari_id=usuari_id)
+    else:
+        return "No hay progreso para este usuario", 404
+
+
+
+# Ruta para agregar un progreso (cuando se marca como completado)
+@app.route("/completar_rutina/<int:usuari_id>", methods=["POST"])
+def completar_rutina(usuari_id):
+    data_actual = datetime.now().strftime("%Y-%m-%d")
+
+    # Iterar sobre las rutinas completadas (checkboxes marcados)
+    for rutina_id in request.form.getlist('rutinas_completadas'):
+        # Obtener el nombre del ejercicio usando el ID de la rutina
+        conn = conectar_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT e.nom FROM rutines r JOIN exercicis e ON r.exercici_id = e.id WHERE r.id = %s", (rutina_id,))
+        ejercicio = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if ejercicio:
+            # Crear el nuevo progreso para el ejercicio
+            nuevo_progreso = {
+                "exercici": ejercicio[0],  # El nombre del ejercicio
+                "data": data_actual,  # La fecha actual
+                "valor": "valor_asociado"  # Aquí puedes poner el valor que deseas guardar
+            }
+
+            # Verificar si el usuario ya tiene un documento en MongoDB
+            usuari = col_progressos.find_one({"usuari_id": usuari_id})
+
+            if usuari:
+                # Si ya existe, agregar el nuevo progreso al array
+                col_progressos.update_one(
+                    {"usuari_id": usuari_id},
+                    {"$push": {"progressos": nuevo_progreso}}
+                )
+            else:
+                # Si no existe, creamos un nuevo documento
+                nuevo_documento = {
+                    "usuari_id": usuari_id,
+                    "progressos": [nuevo_progreso]
+                }
+                col_progressos.insert_one(nuevo_documento)
+
+    # Redirigir al usuario a la página de progreso
+    return redirect(url_for("user_progress", usuari_id=usuari_id))
 
 
 
