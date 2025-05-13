@@ -178,3 +178,24 @@ def eliminar_exercici(id):
     except mariadb.Error as e:
         print(f"❌ Error al eliminar exercici: {e}")
         return False
+
+def editar_rutina_bd(id_rutina, exercici, series, repeticions):
+    conn = conectar_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            UPDATE rutines
+            SET exercici = %s, series = %s, repeticions = %s
+            WHERE id = %s
+        """, (exercici, series, repeticions, id_rutina))
+        conn.commit()
+    except mariadb.Error as e:
+        print(f"❌ Error SQL: {e}")
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()
+
+
+

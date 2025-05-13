@@ -1,8 +1,9 @@
-from flask import Flask, request, render_template, redirect, url_for, session
-from database import conectar_db, registrar_usuari, afegir_exercici, afegir_rutina, eliminar_exercici  # Asegúrate de que este archivo tenga la conexión
+from flask import Flask, request, render_template, redirect, url_for,jsonify, session
+from database import conectar_db, registrar_usuari, afegir_exercici, afegir_rutina, eliminar_exercici, editar_rutina_bd
 import bcrypt
 import csv
 import matplotlib.pyplot as plt
+import mariadb
 
 app = Flask(__name__)
 app.secret_key = "supersecreto123"  # Necesario para usar sesiones
@@ -230,6 +231,29 @@ def eliminar_exercici_route(id):
         return f"Exercici {id} eliminat", 200
     else:
         return "Error al eliminar", 500
+
+
+@app.route('/editar_rutina/<int:id>', methods=['POST'])
+def editar_rutina(id):
+    try:
+        dades = request.get_json()
+        nou_exercici = dades.get('exercici')
+        noves_series = dades.get('series')
+        noves_repeticions = dades.get('repeticions')
+
+        editar_rutina_bd(id, nou_exercici, noves_series, noves_repeticions)
+
+        return jsonify({"success": True})
+    except Exception as e:
+        print("❌ EXCEPCIÓ DETECTADA:", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+
+
+
+
+
 
 # --------------------------
 # Main

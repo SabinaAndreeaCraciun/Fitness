@@ -69,21 +69,73 @@
     <script>
         let filaSeleccionada = null;
 
-        function editarFila(btn) {
-            const fila = btn.closest("tr");
-            deseleccionarFila();
-            fila.classList.add("selected");
-            filaSeleccionada = fila;
+       function editarFila(btn) {
+        const fila = btn.closest("tr");
+        const id = fila.dataset.id;
 
-            const estimul = fila.cells[0].textContent;
-            const exercici = fila.cells[1].textContent;
-            const series = fila.cells[2].textContent;
-            const repeticions = fila.cells[3].textContent;
+        // Convertir cel·les en inputs
+        const estimulCell = fila.cells[0];
+        const exerciciCell = fila.cells[1];
+        const seriesCell = fila.cells[2];
+        const repeticionsCell = fila.cells[3];
+        const accionsCell = fila.cells[4];
 
-            alert(`Editar: ${exercici} - ${estimul} (${series}x${repeticions})`);
+        estimulCell.innerHTML = `<input type="text" value="${estimulCell.textContent}" />`;
+        exerciciCell.innerHTML = `<input type="text" value="${exerciciCell.textContent}" />`;
+        seriesCell.innerHTML = `<input type="number" value="${seriesCell.textContent}" />`;
+        repeticionsCell.innerHTML = `<input type="number" value="${repeticionsCell.textContent}" />`;
+
+        accionsCell.innerHTML = `
+            <button onclick="guardarEdicio(${id}, this)">💾</button>
+            <button onclick="cancelarEdicio()">❌</button>
+        `;
+    }
+
+    function guardarEdicio(id, btn) {
+    const fila = btn.closest("tr");
+
+    const nouEstimul = fila.cells[0].querySelector("input").value;
+    const nouExercici = fila.cells[1].querySelector("input").value;
+    const novesSeries = fila.cells[2].querySelector("input").value;
+    const novesRepeticions = fila.cells[3].querySelector("input").value;
+
+    fetch(`/editar_rutina/${id}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            estimul: nouEstimul,
+            exercici: nouExercici,
+            series: novesSeries,
+            repeticions: novesRepeticions
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Actualitzar la fila visualment
+            fila.cells[0].textContent = nouEstimul;
+            fila.cells[1].textContent = nouExercici;
+            fila.cells[2].textContent = novesSeries;
+            fila.cells[3].textContent = novesRepeticions;
+
+            fila.cells[4].innerHTML = `
+                <button class="icon-btn" onclick="editarFila(this)">✏️</button>
+                <button class="icon-btn" onclick="esborrarFila(this)">❌</button>
+            `;
+        } else {
+            alert("Error al desar els canvis.");
         }
+    })
+    .catch(err => alert("Error al comunicar amb el servidor: " + err));
+}
 
-       function esborrarFila(btn) {
+    function cancelarEdicio() {
+        location.reload(); // Ràpida manera de cancel·lar edició
+    }
+    
+    function esborrarFila(btn) {
     const fila = btn.closest("tr");
     const exercici = fila.cells[1].textContent;  // Obtenim el nom de l'exercici
     const exerciciId = fila.dataset.id;  // Obtenim l'ID de l'exercici des de l'atribut `data-id`
