@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progreso del Usuario</title>
-      <link rel="stylesheet" href="{{ url_for('static', filename='rutinas.css') }}">
+    <title>Ver Progreso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='user_progress.css') }}">
 </head>
-<header>
+<body>
     <nav class="navbar">
         <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
         <ul>
@@ -20,30 +20,72 @@
             {% endif %}
         </ul>
     </nav>
-</header>
 
-<body>
     <h1>Progreso del Usuario</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Ejercicio</th>
-                <th>Fecha</th>
-                <th>Valor</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for progreso in progressos %}
-            <tr>
-                <td>{{ progreso.exercici }}</td>
-                <td>{{ progreso.data }}</td>
-                <td>{{ progreso.valor }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+    <div class="table-container">
+        <table id="taulaRutines">
+            <thead>
+                <tr>
+                    <th>Ejercicio</th>
+                    <th>Fecha</th>
+                    <th>Valor</th>
+                    <th>Comentarios</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for progreso in progressos %}
+                <tr data-id="{{ loop.index }}">
+                    <td>{{ progreso.exercici }}</td>
+                    <td>{{ progreso.data }}</td>
+                    <td>{{ progreso.valor }}</td>
+                    <td>
+                        <button class="ver-comentario" data-id="{{ loop.index }}">Ver Comentarios</button>
+                        <button class="agregar-comentario" data-id="{{ loop.index }}">Agregar Comentario</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="comentario-form" id="comentario-form">
+        <h3>Agregar Comentario</h3>
+        <form method="POST" action="{{ url_for('user_progress', usuari_id=usuari_id) }}">
+            <textarea name="comentari" id="comentario-texto" rows="4" cols="50"></textarea><br>
+            <button type="submit">Guardar Comentario</button>
+        </form>
+    </div>
+
+    <div id="comentarios-existing" style="display: none;">
+        <h3>Comentarios Existentes:</h3>
+        <div id="comentarios-list"></div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.agregar-comentario').forEach(button => {
+            button.addEventListener('click', function () {
+                document.getElementById('comentario-form').style.display = 'block';
+                document.getElementById('comentarios-existing').style.display = 'none';
+            });
+        });
+
+        document.querySelectorAll('.ver-comentario').forEach(button => {
+            button.addEventListener('click', function () {
+                document.getElementById('comentario-form').style.display = 'none';
+                document.getElementById('comentarios-existing').style.display = 'block';
+
+                const comentarios = {{ comentaris|tojson }};
+                let comentariosHTML = '';
+                comentarios.forEach(comentario => {
+                    comentariosHTML += `
+                        <p>${comentario.comentari} <span>(Fecha: ${comentario.data})</span></p>
+                    `;
+                });
+
+                document.getElementById('comentarios-list').innerHTML = comentariosHTML;
+            });
+        });
+    </script>
 </body>
-<div class="btn-center">
-        <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
-</div>
 </html>

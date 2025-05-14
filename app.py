@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import mariadb
 from pymongo import MongoClient
 from datetime import datetime
-from mongo import col_progressos
+from mongo import col_progressos, afegir_comentari, afegir_progres, guardar_estadistiques,obtenir_comentaris
 
 app = Flask(__name__)
 app.secret_key = "supersecreto123"  # Necesario para usar sesiones
@@ -251,17 +251,27 @@ def editar_rutina(id):
         print("❌ EXCEPCIÓ DETECTADA:", e)
         return jsonify({"success": False, "error": str(e)}), 500
 
-
-@app.route("/user_progress/<int:usuari_id>")
+@app.route("/user_progress/<int:usuari_id>", methods=["GET", "POST"])
 def user_progress(usuari_id):
-    # Recuperar el progreso del usuario desde MongoDB
-    usuari = col_progressos.find_one({"usuari_id": usuari_id})
+    if request.method == "POST":
+        comentari = request.form.get("comentari")
+        if comentari:
+            afegir_comentari(usuari_id, comentari)
+            return redirect(url_for("user_progress", usuari_id=usuari_id))
 
-    if usuari:
-        # Pasar los progresos a la plantilla
-        return render_template("user_progress.html", progressos=usuari["progressos"], usuari_id=usuari_id)
-    else:
-        return "No hay progreso para este usuario", 404
+    usuari = col_progressos.find_one({"usuari_id": usuari_id})
+    progressos = usuari["progressos"] if usuari else []
+
+    comentaris = obtenir_comentaris(usuari_id)
+    #estadistiques = guardar_estadistiques(usuari_id)
+
+    return render_template("user_progress.html",
+                           progressos=progressos,
+                           comentaris=comentaris,
+                           #estadistiques=estadistiques,
+                           usuari_id=usuari_id)
+
+
 
 
 

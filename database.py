@@ -179,23 +179,29 @@ def eliminar_exercici(id):
         print(f"❌ Error al eliminar exercici: {e}")
         return False
 
-def editar_rutina_bd(id_rutina, exercici, series, repeticions):
+def editar_rutina_bd(id, nou_exercici, series, repeticions):
     conn = conectar_db()
     cursor = conn.cursor()
-    try:
-        cursor.execute("""
-            UPDATE rutines
-            SET exercici = %s, series = %s, repeticions = %s
-            WHERE id = %s
-        """, (exercici, series, repeticions, id_rutina))
-        conn.commit()
-    except mariadb.Error as e:
-        print(f"❌ Error SQL: {e}")
-        conn.rollback()
-        raise
-    finally:
-        cursor.close()
-        conn.close()
+
+    # Buscar l'ID de l'exercici pel nom (si cal)
+    cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (nou_exercici,))
+    resultat = cursor.fetchone()
+    if not resultat:
+        raise Exception("Exercici no trobat")
+
+    exercici_id = resultat[0]
+
+    # Actualitzar la rutina
+    cursor.execute("""
+        UPDATE rutines
+        SET exercici_id = %s, series = %s, repeticions = %s
+        WHERE id = %s
+    """, (exercici_id, series, repeticions, id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 
 
 
