@@ -6,20 +6,21 @@
     <title>Ver Progreso</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='user_progress.css') }}">
 </head>
-<body>
-    <nav class="navbar">
-        <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
-        <ul>
-            <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
-            <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
-            <li><a href="{{ url_for('user_progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
-            {% if session.get('user_id') %}
+ <header>
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
+            <ul>
+                <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
+                <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
+                <li><a href="{{ url_for('user_progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
+                {% if session.get('user_id') %}
                 <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
-            {% else %}
+                {% else %}
                 <li><a href="{{ url_for('login') }}" class="btn-login">Iniciar sesión</a></li>
-            {% endif %}
-        </ul>
-    </nav>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
 
     <h1>Progreso del Usuario</h1>
 
