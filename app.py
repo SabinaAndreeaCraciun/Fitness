@@ -250,6 +250,7 @@ def editar_rutina(id):
     except Exception as e:
         print("❌ EXCEPCIÓ DETECTADA:", e)
         return jsonify({"success": False, "error": str(e)}), 500
+  
 
 @app.route("/user_progress/<int:usuari_id>", methods=["GET", "POST"])
 def user_progress(usuari_id):
@@ -280,45 +281,47 @@ def user_progress(usuari_id):
 def completar_rutina(usuari_id):
     data_actual = datetime.now().strftime("%Y-%m-%d")
 
-    # Iterar sobre las rutinas completadas (checkboxes marcados)
-    for rutina_id in request.form.getlist('rutinas_completadas'):
-        # Obtener el nombre del ejercicio usando el ID de la rutina
-        conn = conectar_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT e.nom FROM rutines r JOIN exercicis e ON r.exercici_id = e.id WHERE r.id = %s", (rutina_id,))
-        ejercicio = cursor.fetchone()
-        cursor.close()
-        conn.close()
+    conn = conectar_db()
+    cursor = conn.cursor()
 
-        if ejercicio:
-            # Crear el nuevo progreso para el ejercicio
-            nuevo_progreso = {
-                "exercici": ejercicio[0],  # El nombre del ejercicio
-                "data": data_actual,  # La fecha actual
-                "valor": "valor_asociado"  # Aquí puedes poner el valor que deseas guardar
+    for rutina_id in request.form.getlist('rutinas_completadas'):
+        # Obtenim nom exercici, series i repeticions de la rutina
+        cursor.execute("""
+            SELECT e.nom, r.series, r.repeticions
+            FROM rutines r
+            JOIN exercicis e ON r.exercici_id = e.id
+            WHERE r.id = %s
+        """, (rutina_id,))
+        resultat = cursor.fetchone()
+
+        if resultat:
+            nom_exercici, series, repeticions = resultat
+            valor_text = f"{series} sèries x {repeticions} repeticions"
+
+            nou_progres = {
+                "exercici": nom_exercici,
+                "data": data_actual,
+                "valor": valor_text
             }
 
-            # Verificar si el usuario ya tiene un documento en MongoDB
             usuari = col_progressos.find_one({"usuari_id": usuari_id})
 
             if usuari:
-                # Si ya existe, agregar el nuevo progreso al array
                 col_progressos.update_one(
                     {"usuari_id": usuari_id},
-                    {"$push": {"progressos": nuevo_progreso}}
+                    {"$push": {"progressos": nou_progres}}
                 )
             else:
-                # Si no existe, creamos un nuevo documento
-                nuevo_documento = {
+                nou_document = {
                     "usuari_id": usuari_id,
-                    "progressos": [nuevo_progreso]
+                    "progressos": [nou_progres]
                 }
-                col_progressos.insert_one(nuevo_documento)
+                col_progressos.insert_one(nou_document)
 
-    # Redirigir al usuario a la página de progreso
+    cursor.close()
+    conn.close()
+
     return redirect(url_for("user_progress", usuari_id=usuari_id))
-
-
 
 
 

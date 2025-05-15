@@ -33,7 +33,8 @@
             </div>
         {% endif %}
         <form action="{{ url_for('completar_rutina', usuari_id=session['user_id']) }}" method="POST">
-
+            
+        
         <div class="table-container">
             <table id="taulaRutines">
                 <thead>
@@ -70,8 +71,8 @@
     <div class="btn-center">
             <button type="submit" class="btn">Enviar Progreso</button>
         </div>
-    </form>
-
+    
+</form>
     <div class="btn-center">
         <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
     </div>
@@ -89,17 +90,18 @@ function editarFila(btn) {
         const exerciciCell = fila.cells[1];
         const seriesCell = fila.cells[2];
         const repeticionsCell = fila.cells[3];
-        const accionsCell = fila.cells[4];
+        const accionsCell = fila.cells[5];
 
         estimulCell.innerHTML = `<input type="text" value="${estimulCell.textContent}" />`;
         exerciciCell.innerHTML = `<input type="text" value="${exerciciCell.textContent}" />`;
         seriesCell.innerHTML = `<input type="number" value="${seriesCell.textContent}" />`;
         repeticionsCell.innerHTML = `<input type="number" value="${repeticionsCell.textContent}" />`;
 
-        accionsCell.innerHTML = `
-            <button onclick="guardarEdicio(${id}, this)">💾</button>
-            <button onclick="cancelarEdicio()">❌</button>
-        `;
+      accionsCell.innerHTML = `
+    <button type="button" onclick="guardarEdicio(${id}, this)">💾</button>
+    <button type="button" onclick="cancelarEdicio()">❌</button>
+`;
+
     }
 
     function guardarEdicio(id, btn) {
@@ -131,7 +133,7 @@ function editarFila(btn) {
             fila.cells[2].textContent = novesSeries;
             fila.cells[3].textContent = novesRepeticions;
 
-            fila.cells[4].innerHTML = `
+            fila.cells[5].innerHTML = `
                 <button class="icon-btn" onclick="editarFila(this)">✏️</button>
                 <button class="icon-btn" onclick="esborrarFila(this)">❌</button>
             `;

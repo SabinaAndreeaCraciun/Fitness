@@ -8,29 +8,29 @@ col_progressos = db["progressos"]
 col_comentaris = db["comentaris"]
 col_estadistiques = db["estadistiques"]
 
-def afegir_progres(usuari_id, exercici, valor):
+def afegir_progres(usuari_id, exercici, series, repeticions):
     data_actual = datetime.now().strftime("%Y-%m-%d")
 
-    if not exercici or valor is None:
-        print("Error: 'exercici' o 'valor' no poden ser buits.")
+    if not exercici or series is None or repeticions is None:
+        print("Error: 'exercici', 'series' i 'repeticions' no poden ser buits.")
         return
+
+    valor_text = f"{series} sèries x {repeticions} repeticions"
 
     nou_progres = {
         "exercici": exercici,
         "data": data_actual,
-        "valor": valor
+        "valor": valor_text
     }
 
     usuari = col_progressos.find_one({"usuari_id": usuari_id})
 
     if usuari:
-        # Si ja existeix, afegeix el nou progrés
         col_progressos.update_one(
             {"usuari_id": usuari_id},
             {"$push": {"progressos": nou_progres}}
         )
     else:
-        # Si no existeix, crea un nou document
         nou_document = {
             "usuari_id": usuari_id,
             "progressos": [nou_progres]
@@ -38,7 +38,6 @@ def afegir_progres(usuari_id, exercici, valor):
         col_progressos.insert_one(nou_document)
 
     print(f"Progrés afegit per a l'usuari {usuari_id}")
-
 
 def afegir_comentari(usuari_id, comentari):
     data_actual = datetime.now().strftime("%Y-%m-%d")
@@ -97,6 +96,7 @@ def guardar_estadistiques(usuari_id, temps_total, calories_totals):
 
 # Exemple d’ús
 if __name__ == "__main__":
-    afegir_progres(usuari_id=2, exercici="Press banca", valor=60)
+    afegir_progres(usuari_id=2, exercici="Curl", series=4, repeticions=10)
+
     afegir_comentari(usuari_id=2, comentari="He augmentat pes en esquats.")
     guardar_estadistiques(usuari_id=2, temps_total=240, calories_totals=15000)
