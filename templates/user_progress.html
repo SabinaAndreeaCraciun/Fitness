@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ver Progreso</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='user_progress.css') }}" />
+
 </head>
 <body>
 <header>
@@ -26,22 +27,29 @@
 <main>
     <h1>Progreso de {{ nombre_usuario }}</h1>
 
-    <div class="table-container">
-        <table id="taulaRutines">
+    {% set ejercicios = {} %}
+    {% for progreso in progressos %}
+        {% if progreso.exercici not in ejercicios %}
+            {% set ejercicios = ejercicios.update({progreso.exercici: []}) or ejercicios %}
+        {% endif %}
+        {% set ejercicios = ejercicios.update({progreso.exercici: ejercicios[progreso.exercici] + [progreso]}) or ejercicios %}
+    {% endfor %}
+
+    {% for ejercicio, entradas in ejercicios.items() %}
+        <h2>{{ ejercicio }}</h2>
+        <table>
             <thead>
                 <tr>
-                    <th>Ejercicio</th>
                     <th>Fecha</th>
                     <th>Valor</th>
                     <th>Comentarios</th>
                 </tr>
             </thead>
             <tbody>
-                {% for progreso in progressos %}
+                {% for entrada in entradas %}
                 <tr data-id="{{ loop.index }}">
-                    <td>{{ progreso.exercici }}</td>
-                    <td>{{ progreso.data }}</td>
-                    <td>{{ progreso.valor }}</td>
+                    <td>{{ entrada.data }}</td>
+                    <td>{{ entrada.valor }}</td>
                     <td>
                         <button class="ver-comentario" data-id="{{ loop.index }}">Ver Comentarios</button>
                         <button class="agregar-comentario" data-id="{{ loop.index }}">Agregar Comentario</button>
@@ -50,20 +58,20 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
+    {% endfor %}
 
     <!-- Formulario para agregar comentario -->
-    <div class="comentario-form" id="comentario-form" style="display:none; margin-top: 20px;">
+    <div class="comentario-form" id="comentario-form" style="display:none;">
         <h3>Agregar Comentario</h3>
         <form method="POST" action="{{ url_for('user_progress', usuari_id=usuari_id) }}">
-            <textarea name="comentari" id="comentario-texto" rows="4" cols="50" required></textarea><br />
+            <textarea name="comentari" id="comentario-texto" rows="4" required></textarea><br />
             <input type="hidden" name="ejercicio_id" id="ejercicio-id-input" value="" />
             <button type="submit">Guardar Comentario</button>
         </form>
     </div>
 
     <!-- Mostrar comentarios existentes -->
-    <div id="comentarios-existing" style="display:none; margin-top: 20px;">
+    <div id="comentarios-existing" style="display:none;">
         <h3>Comentarios Existentes:</h3>
         <div id="comentarios-list"></div>
     </div>
@@ -80,7 +88,7 @@
             document.getElementById('comentarios-existing').style.display = 'none';
             document.getElementById('ejercicio-id-input').value = ejercicioId;
             document.getElementById('comentario-texto').value = '';
-            window.scrollTo(0, document.body.scrollHeight);  // Scroll para ver el formulario
+            window.scrollTo(0, document.body.scrollHeight);
         });
     });
 
@@ -102,7 +110,7 @@
                 comentariosHTML = '<p>No hay comentarios para este ejercicio.</p>';
             }
             document.getElementById('comentarios-list').innerHTML = comentariosHTML;
-            window.scrollTo(0, document.getElementById('comentarios-existing').offsetTop);  // Scroll a comentarios
+            window.scrollTo(0, document.getElementById('comentarios-existing').offsetTop);
         });
     });
 </script>
