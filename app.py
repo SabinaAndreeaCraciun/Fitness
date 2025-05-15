@@ -254,6 +254,16 @@ def editar_rutina(id):
 
 @app.route("/user_progress/<int:usuari_id>", methods=["GET", "POST"])
 def user_progress(usuari_id):
+    conn = conectar_db()  # Conexión correcta
+    cursor = conn.cursor(dictionary=True)  # Cursor con diccionario
+
+    cursor.execute("SELECT nom FROM usuaris WHERE id = %s", (usuari_id,))
+    usuario = cursor.fetchone()
+    nombre_usuario = usuario['nom'] if usuario else "Usuario desconocido"
+
+    cursor.close()
+    conn.close()
+
     if request.method == "POST":
         comentari = request.form.get("comentari")
         if comentari:
@@ -264,13 +274,13 @@ def user_progress(usuari_id):
     progressos = usuari["progressos"] if usuari else []
 
     comentaris = obtenir_comentaris(usuari_id)
-    #estadistiques = guardar_estadistiques(usuari_id)
 
     return render_template("user_progress.html",
                            progressos=progressos,
                            comentaris=comentaris,
-                           #estadistiques=estadistiques,
-                           usuari_id=usuari_id)
+                           usuari_id=usuari_id,
+                           nombre_usuario=nombre_usuario)
+
 
 
 
