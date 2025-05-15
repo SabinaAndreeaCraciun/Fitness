@@ -251,35 +251,34 @@ def editar_rutina(id):
         print("❌ EXCEPCIÓ DETECTADA:", e)
         return jsonify({"success": False, "error": str(e)}), 500
   
-
 @app.route("/user_progress/<int:usuari_id>", methods=["GET", "POST"])
 def user_progress(usuari_id):
-    conn = conectar_db()  # Conexión correcta
-    cursor = conn.cursor(dictionary=True)  # Cursor con diccionario
-
+    conn = conectar_db()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT nom FROM usuaris WHERE id = %s", (usuari_id,))
     usuario = cursor.fetchone()
     nombre_usuario = usuario['nom'] if usuario else "Usuario desconocido"
-
     cursor.close()
     conn.close()
 
     if request.method == "POST":
         comentari = request.form.get("comentari")
-        if comentari:
-            afegir_comentari(usuari_id, comentari)
+        ejercicio_id = request.form.get("ejercicio_id")  # Nuevo campo para identificar ejercicio
+        if comentari and ejercicio_id:
+            afegir_comentari(usuari_id, comentari, ejercicio_id)  # Modifica la función para aceptar ejercicio_id
             return redirect(url_for("user_progress", usuari_id=usuari_id))
 
     usuari = col_progressos.find_one({"usuari_id": usuari_id})
     progressos = usuari["progressos"] if usuari else []
 
-    comentaris = obtenir_comentaris(usuari_id)
+    comentaris = obtenir_comentaris(usuari_id)  # Debe devolver lista con campo 'ejercicio_id' en cada comentario
 
     return render_template("user_progress.html",
                            progressos=progressos,
                            comentaris=comentaris,
                            usuari_id=usuari_id,
                            nombre_usuario=nombre_usuario)
+
 
 
 

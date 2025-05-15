@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ver Progreso</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='user_progress.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='user_progress.css') }}" />
 </head>
- <header>
-        <nav class="navbar">
-            <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
-            <ul>
-                <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
-                <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
-                <li><a href="{{ url_for('user_progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
-                {% if session.get('user_id') %}
-                <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
-                {% else %}
-                <li><a href="{{ url_for('login') }}" class="btn-login">Iniciar sesión</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
+<body>
+<header>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
+        <ul>
+            <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
+            <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
+            <li><a href="{{ url_for('user_progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
+            {% if session.get('user_id') %}
+            <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
+            {% else %}
+            <li><a href="{{ url_for('login') }}" class="btn-login">Iniciar sesión</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
 
-   <h1>Progreso de {{ nombre_usuario }}</h1>
-
+<main>
+    <h1>Progreso de {{ nombre_usuario }}</h1>
 
     <div class="table-container">
         <table id="taulaRutines">
@@ -51,43 +52,59 @@
         </table>
     </div>
 
-    <div class="comentario-form" id="comentario-form">
+    <!-- Formulario para agregar comentario -->
+    <div class="comentario-form" id="comentario-form" style="display:none; margin-top: 20px;">
         <h3>Agregar Comentario</h3>
         <form method="POST" action="{{ url_for('user_progress', usuari_id=usuari_id) }}">
-            <textarea name="comentari" id="comentario-texto" rows="4" cols="50"></textarea><br>
+            <textarea name="comentari" id="comentario-texto" rows="4" cols="50" required></textarea><br />
+            <input type="hidden" name="ejercicio_id" id="ejercicio-id-input" value="" />
             <button type="submit">Guardar Comentario</button>
         </form>
     </div>
 
-    <div id="comentarios-existing" style="display: none;">
+    <!-- Mostrar comentarios existentes -->
+    <div id="comentarios-existing" style="display:none; margin-top: 20px;">
         <h3>Comentarios Existentes:</h3>
         <div id="comentarios-list"></div>
     </div>
+</main>
 
-    <script>
-        document.querySelectorAll('.agregar-comentario').forEach(button => {
-            button.addEventListener('click', function () {
-                document.getElementById('comentario-form').style.display = 'block';
-                document.getElementById('comentarios-existing').style.display = 'none';
-            });
+<script>
+    const comentaris = {{ comentaris|tojson }};
+
+    // Mostrar formulario para agregar comentario y establecer ejercicio_id
+    document.querySelectorAll('.agregar-comentario').forEach(button => {
+        button.addEventListener('click', function () {
+            const ejercicioId = this.getAttribute('data-id');
+            document.getElementById('comentario-form').style.display = 'block';
+            document.getElementById('comentarios-existing').style.display = 'none';
+            document.getElementById('ejercicio-id-input').value = ejercicioId;
+            document.getElementById('comentario-texto').value = '';
+            window.scrollTo(0, document.body.scrollHeight);  // Scroll para ver el formulario
         });
+    });
 
-        document.querySelectorAll('.ver-comentario').forEach(button => {
-            button.addEventListener('click', function () {
-                document.getElementById('comentario-form').style.display = 'none';
-                document.getElementById('comentarios-existing').style.display = 'block';
+    // Mostrar comentarios filtrados por ejercicio
+    document.querySelectorAll('.ver-comentario').forEach(button => {
+        button.addEventListener('click', function () {
+            const ejercicioId = this.getAttribute('data-id');
+            document.getElementById('comentario-form').style.display = 'none';
+            document.getElementById('comentarios-existing').style.display = 'block';
 
-                const comentarios = {{ comentaris|tojson }};
-                let comentariosHTML = '';
-                comentarios.forEach(comentario => {
-                    comentariosHTML += `
-                        <p>${comentario.comentari} <span>(Fecha: ${comentario.data})</span></p>
-                    `;
+            const comentariosFiltrados = comentaris.filter(c => c.ejercicio_id == ejercicioId);
+
+            let comentariosHTML = '';
+            if (comentariosFiltrados.length > 0) {
+                comentariosFiltrados.forEach(comentario => {
+                    comentariosHTML += `<p>${comentario.comentari} <span style="font-size: 0.8em; color: gray;">(Fecha: ${comentario.data})</span></p>`;
                 });
-
-                document.getElementById('comentarios-list').innerHTML = comentariosHTML;
-            });
+            } else {
+                comentariosHTML = '<p>No hay comentarios para este ejercicio.</p>';
+            }
+            document.getElementById('comentarios-list').innerHTML = comentariosHTML;
+            window.scrollTo(0, document.getElementById('comentarios-existing').offsetTop);  // Scroll a comentarios
         });
-    </script>
+    });
+</script>
 </body>
 </html>

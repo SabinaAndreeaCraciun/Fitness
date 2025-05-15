@@ -38,8 +38,8 @@ def afegir_progres(usuari_id, exercici, series, repeticions):
         col_progressos.insert_one(nou_document)
 
     print(f"Progrés afegit per a l'usuari {usuari_id}")
-
-def afegir_comentari(usuari_id, comentari):
+    
+def afegir_comentari(usuari_id, comentari, ejercicio_id):
     data_actual = datetime.now().strftime("%Y-%m-%d")
 
     if not comentari:
@@ -48,7 +48,8 @@ def afegir_comentari(usuari_id, comentari):
 
     nou_comentari = {
         "data": data_actual,
-        "comentari": comentari
+        "comentari": comentari,
+        "ejercicio_id": ejercicio_id  # Guardamos el ID del ejercicio relacionado
     }
 
     usuari = col_comentaris.find_one({"usuari_id": usuari_id})
