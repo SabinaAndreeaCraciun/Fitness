@@ -262,32 +262,50 @@ def user_progress(usuari_id):
 
 
 
-# Ruta para agregar un progreso (cuando se marca como completado)
 @app.route("/completar_rutina/<int:usuari_id>", methods=["POST"])
 def completar_rutina(usuari_id):
     data_actual = datetime.now().strftime("%Y-%m-%d")
+
+    calorias_por_grupo = {
+        "pectorales": 50,
+        "gluteo": 55,
+        "biceps": 30,
+        "triceps": 30,
+        "cuadriceps": 60,
+        "espalda": 45,
+        "hombros": 35,
+        "antebrazos": 20,
+        "abdomen": 25,
+        "zona lumbar": 30
+    }
 
     conn = conectar_db()
     cursor = conn.cursor()
 
     for rutina_id in request.form.getlist('rutinas_completadas'):
-        # Obtenim nom exercici, series i repeticions de la rutina
         cursor.execute("""
-            SELECT e.nom, r.series, r.repeticions
+            SELECT e.nom, e.estimul, r.series, r.repeticions
             FROM rutines r
             JOIN exercicis e ON r.exercici_id = e.id
             WHERE r.id = %s
         """, (rutina_id,))
-        resultat = cursor.fetchone()
 
-        if resultat:
-            nom_exercici, series, repeticions = resultat
-            valor_text = f"{series} sèries x {repeticions} repeticions"
+        resultado = cursor.fetchone()
 
-            nou_progres = {
+        if resultado:
+            nom_exercici, grupo_muscular, series, repeticiones = resultado
+            grupo_muscular = grupo_muscular.lower()
+
+            calorias_por_grupo_muscular = calorias_por_grupo.get(grupo_muscular, 40)  # Valor por defecto
+            calorias_totales = (series * repeticiones) * calorias_por_grupo_muscular
+
+            valor_text = f"{series} series x {repeticiones} repeticiones ({calorias_totales} cal)"
+
+            nuevo_progreso = {
                 "exercici": nom_exercici,
                 "data": data_actual,
-                "valor": valor_text
+                "valor": valor_text,
+                "calorias": calorias_totales
             }
 
             usuari = col_progressos.find_one({"usuari_id": usuari_id})
@@ -295,14 +313,14 @@ def completar_rutina(usuari_id):
             if usuari:
                 col_progressos.update_one(
                     {"usuari_id": usuari_id},
-                    {"$push": {"progressos": nou_progres}}
+                    {"$push": {"progressos": nuevo_progreso}}
                 )
             else:
-                nou_document = {
+                nuevo_documento = {
                     "usuari_id": usuari_id,
-                    "progressos": [nou_progres]
+                    "progressos": [nuevo_progreso]
                 }
-                col_progressos.insert_one(nou_document)
+                col_progressos.insert_one(nuevo_documento)
 
     cursor.close()
     conn.close()

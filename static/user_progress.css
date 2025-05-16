@@ -175,6 +175,24 @@ button.agregar-comentario:hover {
     transform: scale(1.05);
 }
 
+/* Botón ver estadísticas */
+button.ver-estadisticas {
+    background-color: #ff1111;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    margin: 4px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button.ver-estadisticas:hover {
+    background-color: #e60000;
+    transform: scale(1.05);
+}
+
 /* Formulario de comentarios */
 .comentario-form {
     max-width: 800px;
@@ -230,6 +248,28 @@ button.agregar-comentario:hover {
     color: #e0e0e0;
     font-style: italic;
     font-size: 1rem;
+}
+
+/* Estadísticas existentes */
+#estadisticas-existing {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 10px;
+    color: #e0e0e0;
+}
+
+#estadisticas-existing ul {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+#estadisticas-existing ul li {
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    color: #e0e0e0;
+    list-style-type: disc;
 }
 
 /* Responsive */
