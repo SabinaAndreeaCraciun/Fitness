@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ver Progreso</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='user_progress.css') }}" />
-
 </head>
 <body>
 <header>
@@ -51,8 +50,9 @@
                     <td>{{ entrada.data }}</td>
                     <td>{{ entrada.valor }}</td>
                     <td>
-                        <button class="ver-comentario" data-id="{{ loop.index }}">Ver Comentarios</button>
-                        <button class="agregar-comentario" data-id="{{ loop.index }}">Agregar Comentario</button>
+                        <!-- Cambiado data-id a nombre del ejercicio para filtrar correctamente -->
+                        <button class="ver-comentario" data-id="{{ ejercicio }}">Ver Comentarios</button>
+                        <button class="agregar-comentario" data-id="{{ ejercicio }}">Agregar Comentario</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -99,7 +99,7 @@
             document.getElementById('comentario-form').style.display = 'none';
             document.getElementById('comentarios-existing').style.display = 'block';
 
-            const comentariosFiltrados = comentaris.filter(c => c.ejercicio_id == ejercicioId);
+            const comentariosFiltrados = comentaris.filter(c => c.ejercicio_id === ejercicioId);
 
             let comentariosHTML = '';
             if (comentariosFiltrados.length > 0) {
