@@ -34,7 +34,17 @@
         {% set ejercicios = ejercicios.update({progreso.exercici: ejercicios[progreso.exercici] + [progreso]}) or ejercicios %}
     {% endfor %}
 
+    <!-- Desplegable para filtrar ejercicios -->
+
+    <select id="filtro-ejercicio" style="margin-bottom: 20px;">
+        <option value="todos">Todos</option>
+        {% for ejercicio in ejercicios.keys() %}
+        <option value="{{ ejercicio }}">{{ ejercicio }}</option>
+        {% endfor %}
+    </select>
+
     {% for ejercicio, entradas in ejercicios.items() %}
+    <div class="ejercicio-block" data-ejercicio="{{ ejercicio }}">
         <h2>{{ ejercicio }}</h2>
         <table>
             <thead>
@@ -50,7 +60,6 @@
                     <td>{{ entrada.data }}</td>
                     <td>{{ entrada.valor }}</td>
                     <td>
-                        <!-- Cambiado data-id a nombre del ejercicio para filtrar correctamente -->
                         <button class="ver-comentario" data-id="{{ ejercicio }}">Ver Comentarios</button>
                         <button class="agregar-comentario" data-id="{{ ejercicio }}">Agregar Comentario</button>
                     </td>
@@ -58,6 +67,7 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
     {% endfor %}
 
     <!-- Formulario para agregar comentario -->
@@ -111,6 +121,20 @@
             }
             document.getElementById('comentarios-list').innerHTML = comentariosHTML;
             window.scrollTo(0, document.getElementById('comentarios-existing').offsetTop);
+        });
+    });
+
+    // Filtro por ejercicio
+    document.getElementById('filtro-ejercicio').addEventListener('change', function() {
+        const valor = this.value;
+        const bloques = document.querySelectorAll('.ejercicio-block');
+
+        bloques.forEach(bloque => {
+            if (valor === 'todos' || bloque.getAttribute('data-ejercicio') === valor) {
+                bloque.style.display = 'block';
+            } else {
+                bloque.style.display = 'none';
+            }
         });
     });
 </script>

@@ -91,22 +91,40 @@ main h2 {
     text-align: center;
     margin: 40px 0 20px;
     font-size: 2rem;
-    color:#ff1111;
+    color: #ff1111;
 }
 
-/* Tabla en contenedor centrado y no ancho completo */
-.table-container {
-    max-width: 800px;
+/* Contenedor para cada bloque de ejercicio */
+.ejercicio-block {
+    max-width: 850px;
     margin: 0 auto 40px;
     padding: 0 20px;
-    overflow-x: auto;
 }
 
-/* Tabla centrada y más compacta */
+/* Desplegable filtro */
+#filtro-ejercicio {
+    display: block;
+    max-width: 300px;
+    margin: 0 auto 30px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 2px solid #ff1111;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+#filtro-ejercicio:hover,
+#filtro-ejercicio:focus {
+    border-color: #e00909;
+    outline: none;
+}
+
+/* Tabla centrada y estilizada */
 table {
     width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
     border-collapse: collapse;
     text-align: center;
     font-size: 1.1rem;
@@ -175,6 +193,8 @@ button.agregar-comentario:hover {
     color: #e0e0e0;
     border: 1px solid #444;
     resize: vertical;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
 }
 
 .comentario-form button {
@@ -209,6 +229,7 @@ button.agregar-comentario:hover {
     padding-left: 10px;
     color: #e0e0e0;
     font-style: italic;
+    font-size: 1rem;
 }
 
 /* Responsive */
@@ -220,5 +241,17 @@ button.agregar-comentario:hover {
 
     table {
         font-size: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    main h2 {
+        font-size: 1.5rem;
+    }
+
+    #filtro-ejercicio {
+        max-width: 100%;
     }
 }
