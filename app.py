@@ -2,8 +2,6 @@ from flask import Flask, request, render_template, redirect, url_for,jsonify, se
 from database import conectar_db, registrar_usuari, afegir_exercici, afegir_rutina, eliminar_exercici, editar_rutina_bd
 import bcrypt
 import csv
-import matplotlib.pyplot as plt
-import mariadb
 from pymongo import MongoClient
 from datetime import datetime
 from mongo import col_progressos, afegir_comentari, afegir_progres, guardar_estadistiques,obtenir_comentaris
@@ -205,27 +203,6 @@ def logout():
     session.clear()  # Limpia la sesión
     return redirect(url_for("login"))  # Redirige a la página de inicio
 
-@app.route("/progress/<usuari>")
-def progress(usuari):
-    entrenaments = carregar_entrenaments()
-    user_data = [e for e in entrenaments if e["usuari"] == usuari]
-
-    if not user_data:
-        return "No hay datos para este usuario."
-
-    fechas = [e["data"] for e in user_data]
-    valores = [float(e["valor"]) for e in user_data]
-
-    plt.figure()
-    plt.plot(fechas, valores, marker='o')
-    plt.title(f"Progreso de {usuari}")
-    plt.xlabel("Fecha")
-    plt.ylabel("Valor")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig("static/progress.png")
-
-    return render_template("user_progress.html", usuari=usuari, grafico="static/progress.png")
 
 @app.route('/eliminar_exercici/<int:id>', methods=['DELETE'])
 def eliminar_exercici_route(id):

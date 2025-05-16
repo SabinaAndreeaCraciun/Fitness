@@ -3,7 +3,7 @@ from datetime import datetime
 from bson import ObjectId
 
 # Connexió a MongoDB (modifica la URI segons el teu entorn)
-client = MongoClient("mongodb+srv://sabinaandreeacraciun:sabina1234@sabinadb.fsxnd.mongodb.net/")
+client = MongoClient("mongodb://localhost:27017/")
 db = client["entrenament_db"]
 col_progressos = db["progressos"]
 col_comentaris = db["comentaris"]
