@@ -3,17 +3,17 @@ from datetime import datetime
 from bson import ObjectId
 
 # Connexió a MongoDB (modifica la URI segons el teu entorn)
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient("mongodb+srv://sabinaandreeacraciun:sabina1234@sabinadb.fsxnd.mongodb.net/")
 db = client["entrenament_db"]
 col_progressos = db["progressos"]
 col_comentaris = db["comentaris"]
 col_estadistiques = db["estadistiques"]
 
-def afegir_progres(usuari_id, exercici, series, repeticions):
+def afegir_progres(usuari_id, exercici, series, repeticions, grupo_muscular):
     data_actual = datetime.now().strftime("%Y-%m-%d")
 
-    if not exercici or series is None or repeticions is None:
-        print("Error: 'exercici', 'series' i 'repeticions' no poden ser buits.")
+    if not exercici or series is None or repeticions is None or not grupo_muscular:
+        print("Error: Faltan datos obligatorios.")
         return
 
     valor_text = f"{series} sèries x {repeticions} repeticions"
@@ -21,7 +21,8 @@ def afegir_progres(usuari_id, exercici, series, repeticions):
     nou_progres = {
         "exercici": exercici,
         "data": data_actual,
-        "valor": valor_text
+        "valor": valor_text,
+        "grupo_muscular": grupo_muscular
     }
 
     usuari = col_progressos.find_one({"usuari_id": usuari_id})
@@ -32,11 +33,10 @@ def afegir_progres(usuari_id, exercici, series, repeticions):
             {"$push": {"progressos": nou_progres}}
         )
     else:
-        nou_document = {
+        col_progressos.insert_one({
             "usuari_id": usuari_id,
             "progressos": [nou_progres]
-        }
-        col_progressos.insert_one(nou_document)
+        })
 
     print(f"Progrés afegit per a l'usuari {usuari_id}")
     

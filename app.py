@@ -5,6 +5,7 @@ import csv
 from pymongo import MongoClient
 from datetime import datetime
 from mongo import col_progressos, afegir_comentari, afegir_progres, guardar_estadistiques,obtenir_comentaris
+from collections import defaultdict
 
 app = Flask(__name__)
 app.secret_key = "supersecreto123"  # Necesario para usar sesiones
@@ -240,18 +241,22 @@ def user_progress(usuari_id):
 
     if request.method == "POST":
         comentari = request.form.get("comentari")
-        ejercicio_id = request.form.get("ejercicio_id")  # Nuevo campo para identificar ejercicio
+        ejercicio_id = request.form.get("ejercicio_id")
         if comentari and ejercicio_id:
-            afegir_comentari(usuari_id, comentari, ejercicio_id)  # Modifica la función para aceptar ejercicio_id
+            afegir_comentari(usuari_id, comentari, ejercicio_id)
             return redirect(url_for("user_progress", usuari_id=usuari_id))
 
     usuari = col_progressos.find_one({"usuari_id": usuari_id})
     progressos = usuari["progressos"] if usuari else []
 
-    comentaris = obtenir_comentaris(usuari_id)  # Debe devolver lista con campo 'ejercicio_id' en cada comentario
+    grupos = defaultdict(lambda: defaultdict(list))
+    for p in progressos:
+        grupos[p.get("grupo_muscular", "Sin Grupo")][p.get("data", "Sin Fecha")].append(p)
+
+    comentaris = obtenir_comentaris(usuari_id)
 
     return render_template("user_progress.html",
-                           progressos=progressos,
+                           grupos=grupos,
                            comentaris=comentaris,
                            usuari_id=usuari_id,
                            nombre_usuario=nombre_usuario)
@@ -305,7 +310,8 @@ def completar_rutina(usuari_id):
                 "exercici": nom_exercici,
                 "data": data_actual,
                 "valor": valor_text,
-                "calorias": calorias_totales
+                "calorias": calorias_totales,
+                "grupo_muscular": grupo_muscular  # <-- Asegúrate de guardar esto
             }
 
             usuari = col_progressos.find_one({"usuari_id": usuari_id})

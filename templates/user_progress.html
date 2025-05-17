@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ver Progreso</title>
+  <title>Progreso de {{ nombre_usuario }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='user_progress.css') }}" />
 </head>
 <body>
@@ -14,7 +14,7 @@
     <ul>
       <li><a href="{{ url_for('rutinas') }}">Mis Rutinas</a></li>
       <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
-      <li><a href="{{ url_for('user_progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
+      <li><a href="{{ url_for('user_progress', usuari_id=usuari_id) }}">Ver Progreso</a></li>
       {% if session.get('user_id') %}
         <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
       {% else %}
@@ -27,46 +27,42 @@
 <main>
   <h1>Progreso de {{ nombre_usuario }}</h1>
 
-  {% set ejercicios = {} %}
-  {% for progreso in progressos %}
-    {% if progreso.exercici not in ejercicios %}
-      {% set ejercicios = ejercicios.update({progreso.exercici: []}) or ejercicios %}
-    {% endif %}
-    {% set ejercicios = ejercicios.update({progreso.exercici: ejercicios[progreso.exercici] + [progreso]}) or ejercicios %}
-  {% endfor %}
-
-  <select id="filtro-ejercicio" style="margin-bottom: 20px;">
+  <select id="filtro-grupo" style="margin-bottom: 20px;">
     <option value="todos">Todos</option>
-    {% for ejercicio in ejercicios.keys() %}
-      <option value="{{ ejercicio }}">{{ ejercicio }}</option>
+    {% for grupo in grupos.keys() %}
+      <option value="{{ grupo }}">{{ grupo }}</option>
     {% endfor %}
   </select>
 
-  {% for ejercicio, entradas in ejercicios.items() %}
-    <div class="ejercicio-block" data-ejercicio="{{ ejercicio }}">
-      <h2>{{ ejercicio }}</h2>
-      <table>
+  {% for grupo, fechas in grupos.items() %}
+    <div class="grupo-block" data-grupo="{{ grupo }}">
+      <h2>{{ grupo | capitalize }}</h2>
+      <table border="1" cellspacing="0" cellpadding="8">
         <thead>
           <tr>
             <th>Fecha</th>
+            <th>Ejercicio</th>
             <th>Valor</th>
             <th>Comentarios</th>
             <th>Estadísticas</th>
           </tr>
         </thead>
         <tbody>
-          {% for entrada in entradas %}
-          <tr>
-            <td>{{ entrada.data }}</td>
-            <td>{{ entrada.valor }}</td>
-            <td>
-              <button class="ver-comentario" data-id="{{ ejercicio }}">Ver Comentarios</button>
-              <button class="agregar-comentario" data-id="{{ ejercicio }}">Agregar Comentario</button>
-            </td>
-            <td>
-              <button class="ver-estadisticas" data-id="{{ ejercicio }}">Ver Estadísticas</button>
-            </td>
-          </tr>
+          {% for fecha, entradas in fechas.items() %}
+            {% for entrada in entradas %}
+              <tr>
+                <td>{{ fecha }}</td>
+                <td>{{ entrada.exercici }}</td>
+                <td>{{ entrada.valor }}</td>
+                <td>
+                  <button class="ver-comentario" data-id="{{ entrada.exercici }}">Ver Comentarios</button>
+                  <button class="agregar-comentario" data-id="{{ entrada.exercici }}">Agregar Comentario</button>
+                </td>
+                <td>
+                  <button class="ver-estadisticas" data-id="{{ entrada.exercici }}">Ver Estadísticas</button>
+                </td>
+              </tr>
+            {% endfor %}
           {% endfor %}
         </tbody>
       </table>
@@ -74,7 +70,7 @@
   {% endfor %}
 
   <!-- Formulario agregar comentario -->
-  <div class="comentario-form" id="comentario-form" style="display:none;">
+  <div class="comentario-form" id="comentario-form" style="display:none; margin-top: 30px;">
     <h3>Agregar Comentario</h3>
     <form method="POST" action="{{ url_for('user_progress', usuari_id=usuari_id) }}">
       <textarea name="comentari" id="comentario-texto" rows="4" required></textarea><br />
@@ -84,22 +80,29 @@
   </div>
 
   <!-- Comentarios existentes -->
-  <div id="comentarios-existing" style="display:none;">
+  <div id="comentarios-existing" style="display:none; margin-top: 30px;">
     <h3>Comentarios Existentes:</h3>
     <div id="comentarios-list"></div>
   </div>
 
   <!-- Estadísticas -->
-  <div id="estadisticas-existing" style="display:none;">
+  <div id="estadisticas-existing" style="display:none; margin-top: 30px;">
     <h3>Estadísticas del Ejercicio</h3>
     <div id="estadisticas-list"></div>
   </div>
-
 </main>
 
 <script>
   const comentaris = {{ comentaris|tojson }};
-  const progressos = {{ progressos|tojson }};
+  const progressos = [];
+  {% for grupo, fechas in grupos.items() %}
+    {% for fecha, entradas in fechas.items() %}
+      {% for entrada in entradas %}
+        progressos.push({ exercici: "{{ entrada.exercici }}", calorias: {{ entrada.calorias or 0 }} });
+      {% endfor %}
+    {% endfor %}
+  {% endfor %}
+
   const objetivoCalorias = 1200;
 
   // Agregar Comentario
@@ -115,7 +118,7 @@
     });
   });
 
-  // Ver Comentario
+  // Ver Comentarios
   document.querySelectorAll('.ver-comentario').forEach(button => {
     button.addEventListener('click', () => {
       const ejercicioId = button.getAttribute('data-id');
@@ -127,7 +130,7 @@
       let html = '';
       if (comentariosFiltrados.length > 0) {
         comentariosFiltrados.forEach(c => {
-          html += `<p>${c.comentari} <span style="font-size: 0.8em; color: gray;">(${c.data})</span></p>`;
+          html += `<p>${c.comentari} <small style="color: gray;">(${c.data})</small></p>`;
         });
       } else {
         html = '<p>No hay comentarios para este ejercicio.</p>';
@@ -164,15 +167,11 @@
     });
   });
 
-  // Filtro por ejercicio
-  document.getElementById('filtro-ejercicio').addEventListener('change', function () {
+  // Filtro por grupo muscular
+  document.getElementById('filtro-grupo').addEventListener('change', function () {
     const valor = this.value;
-    document.querySelectorAll('.ejercicio-block').forEach(block => {
-      if (valor === 'todos' || block.getAttribute('data-ejercicio') === valor) {
-        block.style.display = 'block';
-      } else {
-        block.style.display = 'none';
-      }
+    document.querySelectorAll('.grupo-block').forEach(block => {
+      block.style.display = (valor === 'todos' || block.getAttribute('data-grupo') === valor) ? 'block' : 'none';
     });
   });
 </script>
