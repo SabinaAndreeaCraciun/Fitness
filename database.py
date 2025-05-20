@@ -117,7 +117,7 @@ def afegir_exercici(exercici_nombre, tipus, estimul):
     conn = conectar_db()
     cursor = conn.cursor()
 
-    # Verificar si el ejercicio ya existe
+    #Verifica si el exercici ja existeix
     cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (exercici_nombre,))
     exercici = cursor.fetchone()
     
@@ -165,10 +165,10 @@ def eliminar_exercici(id):
         conn = conectar_db()
         cursor = conn.cursor()
 
-        # Eliminar de la taula rutines
+        #Eliminar de la taula rutines
         cursor.execute("DELETE FROM rutines WHERE exercici_id = %s", (id,))
         
-        # Eliminar de la taula exercicis
+        #Eliminar de la taula exercicis
         cursor.execute("DELETE FROM exercicis WHERE id = %s", (id,))
         
         conn.commit()
@@ -183,7 +183,7 @@ def editar_rutina_bd(id, nou_exercici, series, repeticions):
     conn = conectar_db()
     cursor = conn.cursor()
 
-    # Buscar l'ID de l'exercici pel nom (si cal)
+    #Buscar l'ID de l'exercici pel nom (si cal)
     cursor.execute("SELECT id FROM exercicis WHERE nom = %s", (nou_exercici,))
     resultat = cursor.fetchone()
     if not resultat:
@@ -191,7 +191,7 @@ def editar_rutina_bd(id, nou_exercici, series, repeticions):
 
     exercici_id = resultat[0]
 
-    # Actualitzar la rutina
+    #Actualitzar la rutina
     cursor.execute("""
         UPDATE rutines
         SET exercici_id = %s, series = %s, repeticions = %s

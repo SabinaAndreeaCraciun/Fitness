@@ -8,11 +8,9 @@ from mongo import col_progressos, afegir_comentari, afegir_progres, guardar_esta
 from collections import defaultdict
 
 app = Flask(__name__)
-app.secret_key = "supersecreto123"  # Necesario para usar sesiones
+app.secret_key = "supersecreto123"  
 
-# --------------------------
-# Clase Usuari
-# --------------------------
+#Classe Usuari
 
 class Usuari:
     def __init__(self, nom, email, contrasenya, nivell="Principiant"):
@@ -20,6 +18,8 @@ class Usuari:
         self.email = email
         self.contrasenya = contrasenya
         self.nivell = nivell
+        
+#Mètode guardar() que desa l’usuari a la base de dades.
 
     def guardar(self):     
         try: 
@@ -29,9 +29,7 @@ class Usuari:
             print(f"❌ Error guardando el usuario: {e}")
             return False
 
-# --------------------------
-# Clases Entrenament y Subclases
-# --------------------------
+# Classe Entrenament y Subclases (Herencia)
 
 class Entrenament:
     def __init__(self, usuari, tipus, data, valor):
@@ -56,9 +54,8 @@ class Forca(Entrenament):
         return [self.usuari, self.tipus, self.data, self.valor, self.repeticions]
 
 
-# --------------------------
-# Funciones para guardar entrenamientos
-# --------------------------
+# Funcions para guardar entrenaments
+
 #To do esta funcio no se utilitza (modificar para mongodb o borrar)
 def guardar_entrenament(entrenament):
     try:
@@ -85,9 +82,7 @@ def carregar_entrenaments():
     return entrenaments
 
 
-# --------------------------
-# Funciones para crear rutinas
-# --------------------------
+# Funcions para crear rutines
 @app.route("/crear_rutina", methods=["GET", "POST"])
 def crear_rutina():
     if request.method == "GET":
@@ -101,25 +96,25 @@ def crear_rutina():
         repeticions = int(request.form['repeticions'])
 
     exercici_id = afegir_exercici(exercici_nombre, tipus, estimul)    
-    # Insertar en rutines
+    #Insertar en rutines
     usuari_id = session.get("user_id")
     afegir_rutina(usuari_id, exercici_id, series, repeticions)
     return redirect(url_for("rutinas"))
 
 @app.route("/rutinas")
 def rutinas():
-    # Verificar que el usuario esté autenticado
+    #Verificar que el usuari esté autentificat
     if 'user_id' not in session:
         return redirect(url_for("login"))
 
     user_id = session['user_id']
-    user_name = session['user_name']  # Obtener el nombre desde la sesión
+    user_name = session['user_name']  #Obtenim el nombre desde la sesió
 
-    # Conectar a la base de datos
+    #Conecta a la base de dades
     conn = conectar_db()
     cursor = conn.cursor()
 
-    # Obtener las rutinas del usuario actual
+    #Obtenim les rutines del usuari actual
     cursor.execute("""
     SELECT r.id, e.nom, e.estimul, r.series, r.repeticions 
     FROM rutines r
@@ -134,20 +129,18 @@ def rutinas():
 
     return render_template("rutinas.html", rutinas=rutinas, user_name=user_name)
 
-# --------------------------
-# Rutas adicionales
-# --------------------------
 
+ #Rutes adicionals
 @app.route("/")
 def index():
-    # Si no hay sesión de usuario activa, redirige a login
+    #Si no hi ha una sesió de usuario activa, rederixeix a login
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    # Si la sesión está activa, redirige a la página principal
+    #Si la sesió está activa, rederixeix a la página principal
     return render_template("index.html", user_name=session['user_name'])
 
-
+#Funcio per registrar usuari
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -164,13 +157,14 @@ def register():
             return render_template("register.html", error="Error al registrar el usuario.")
     return render_template("register.html")
 
+#Funcio per logejar un usuari
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        nom = request.form["nom"]  # Obtener el nombre del formulario
-        contrasenya = request.form["contrasenya"]  # Obtener la contraseña del formulario
+        nom = request.form["nom"]  #Obtenim el nombre del formulari
+        contrasenya = request.form["contrasenya"]  #Obtenim la contrasenya del formulari
 
-        # Verificar si el nombre y la contraseña coinciden en la base de datos
+        #Verifiquem si el nom i la contrasenya coincideixen en la base de dades
         conn = conectar_db()
         cursor = conn.cursor()
         cursor.execute("SELECT id, contrasenya FROM usuaris WHERE nom = %s", (nom,))
@@ -179,14 +173,14 @@ def login():
         if resultado:
             user_id, contrasenya_guardada = resultado
             if bcrypt.checkpw(contrasenya.encode('utf-8'), contrasenya_guardada.encode('utf-8')):
-                # Guardar el ID y nombre del usuario en la sesión
+                #Guardarem el ID i nom del usuari en la sesió
                 session["user_id"] = user_id
-                session["user_name"] = nom  # Guardar el nombre del usuario en la sesión
+                session["user_name"] = nom 
                 cursor.close()
                 conn.close()
 
-                # Redirigir a la página de inicio (index.html) después de iniciar sesión
-                return redirect(url_for("index"))  # Redirige al index
+                #Redirigeix a la página de inici (index.html) después de iniciar sesió
+                return redirect(url_for("index"))
 
             else:
                 cursor.close()
@@ -199,21 +193,22 @@ def login():
     
     return render_template("login.html")
 
+#Tancar sessio
 @app.route("/logout")
 def logout():
-    session.clear()  # Limpia la sesión
-    return redirect(url_for("login"))  # Redirige a la página de inicio
+    session.clear()  #Limpia la sesió
+    return redirect(url_for("login"))  #Redirigeix a la página de inici
 
-
+#Elemina rutina
 @app.route('/eliminar_exercici/<int:id>', methods=['DELETE'])
 def eliminar_exercici_route(id):
-    resultat = eliminar_exercici(id)  # Crida a la funció que elimina l'exercici
+    resultat = eliminar_exercici(id)  #Crida a la funció que elimina l'exercici
     if resultat:
         return f"Exercici {id} eliminat", 200
     else:
         return "Error al eliminar", 500
-
-
+    
+#Editar rutina
 @app.route('/editar_rutina/<int:id>', methods=['POST'])
 def editar_rutina(id):
     try:
@@ -228,7 +223,8 @@ def editar_rutina(id):
     except Exception as e:
         print("❌ EXCEPCIÓ DETECTADA:", e)
         return jsonify({"success": False, "error": str(e)}), 500
-  
+
+#Progres usuari  
 @app.route("/user_progress/<int:usuari_id>", methods=["GET", "POST"])
 def user_progress(usuari_id):
     conn = conectar_db()
@@ -261,12 +257,7 @@ def user_progress(usuari_id):
                            usuari_id=usuari_id,
                            nombre_usuario=nombre_usuario)
 
-
-
-
-
-
-
+#Completar rutina
 @app.route("/completar_rutina/<int:usuari_id>", methods=["POST"])
 def completar_rutina(usuari_id):
     data_actual = datetime.now().strftime("%Y-%m-%d")
@@ -287,7 +278,7 @@ def completar_rutina(usuari_id):
     conn = conectar_db()
     cursor = conn.cursor()
 
-    calorias_totales_dia = 0  # ← Variable para acumular calorías totales
+    calorias_totales_dia = 0  #Variable para acumular calorías totals
 
     for rutina_id in request.form.getlist('rutinas_completadas'):
         cursor.execute("""
@@ -303,9 +294,9 @@ def completar_rutina(usuari_id):
             nom_exercici, grupo_muscular, series, repeticiones = resultado
             grupo_muscular = grupo_muscular.lower()
 
-            calorias_por_grupo_muscular = calorias_por_grupo.get(grupo_muscular, 40)  # Valor por defecto
+            calorias_por_grupo_muscular = calorias_por_grupo.get(grupo_muscular, 40)  #Valor per defecte
             calorias_totales = (series * repeticiones) * calorias_por_grupo_muscular
-            calorias_totales_dia += calorias_totales  # ← Acumular
+            calorias_totales_dia += calorias_totales 
 
             valor_text = f"{series} series x {repeticiones} repeticiones ({calorias_totales} cal)"
 
@@ -334,15 +325,12 @@ def completar_rutina(usuari_id):
     cursor.close()
     conn.close()
 
-    # 🔥 Guardar estadísticas en MongoDB
+    #Guardar estadístiques en MongoDB
     guardar_estadistiques(usuari_id=usuari_id, calories_totals=calorias_totales_dia)
 
     return redirect(url_for("user_progress", usuari_id=usuari_id))
 
 
-# --------------------------
-# Main
-# --------------------------
-
+#Main
 if __name__ == "__main__":
     app.run(debug=True)

@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from datetime import datetime
 from bson import ObjectId
 
-# Connexió a MongoDB (modifica la URI segons el teu entorn)
+#Connexió a MongoDB (modifica la URI segons el teu entorn)
 client = MongoClient("mongodb+srv://sabinaandreeacraciun:sabina1234@sabinadb.fsxnd.mongodb.net/")
 db = client["entrenament_db"]
 col_progressos = db["progressos"]
@@ -103,8 +103,6 @@ def guardar_estadistiques(usuari_id, calories_totals):
     except Exception as e:
         print(f"Error guardant estadístiques: {e}")
 
-
-# Exemple d’ús
 if __name__ == "__main__":
     afegir_progres(usuari_id=2, exercici="Curl", series=4, repeticions=10)
     afegir_comentari(usuari_id=2, comentari="He augmentat pes en esquats.")
