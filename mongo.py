@@ -83,27 +83,29 @@ def obtenir_comentaris(usuari_id):
     notes = convertir_objectid_a_str(notes)
     return notes
 
-def guardar_estadistiques(usuari_id, temps_total, calories_totals):
-    if temps_total is None or calories_totals is None:
+def guardar_estadistiques(usuari_id, calories_totals):
+    if calories_totals is None:
         print("Error: Les estadístiques no poden estar buides.")
         return
 
     dades = {
         "usuari_id": usuari_id,
-        "temps_entrenament_total": temps_total,
         "calories_burned": calories_totals
     }
 
-    col_estadistiques.update_one(
-        {"usuari_id": usuari_id},
-        {"$set": dades},
-        upsert=True
-    )
+    try:
+        col_estadistiques.update_one(
+            {"usuari_id": usuari_id},
+            {"$set": dades},
+            upsert=True
+        )
+        print(f"Estadístiques guardades per a l'usuari {usuari_id}")
+    except Exception as e:
+        print(f"Error guardant estadístiques: {e}")
 
-    print(f"Estadístiques guardades per a l'usuari {usuari_id}")
 
 # Exemple d’ús
 if __name__ == "__main__":
     afegir_progres(usuari_id=2, exercici="Curl", series=4, repeticions=10)
     afegir_comentari(usuari_id=2, comentari="He augmentat pes en esquats.")
-    guardar_estadistiques(usuari_id=2, temps_total=240, calories_totals=15000)
+    guardar_estadistiques(usuari_id=2,calories_totals=15000)

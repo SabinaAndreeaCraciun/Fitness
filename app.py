@@ -287,6 +287,8 @@ def completar_rutina(usuari_id):
     conn = conectar_db()
     cursor = conn.cursor()
 
+    calorias_totales_dia = 0  # ← Variable para acumular calorías totales
+
     for rutina_id in request.form.getlist('rutinas_completadas'):
         cursor.execute("""
             SELECT e.nom, e.estimul, r.series, r.repeticions
@@ -303,6 +305,7 @@ def completar_rutina(usuari_id):
 
             calorias_por_grupo_muscular = calorias_por_grupo.get(grupo_muscular, 40)  # Valor por defecto
             calorias_totales = (series * repeticiones) * calorias_por_grupo_muscular
+            calorias_totales_dia += calorias_totales  # ← Acumular
 
             valor_text = f"{series} series x {repeticiones} repeticiones ({calorias_totales} cal)"
 
@@ -311,7 +314,7 @@ def completar_rutina(usuari_id):
                 "data": data_actual,
                 "valor": valor_text,
                 "calorias": calorias_totales,
-                "grupo_muscular": grupo_muscular  # <-- Asegúrate de guardar esto
+                "grupo_muscular": grupo_muscular
             }
 
             usuari = col_progressos.find_one({"usuari_id": usuari_id})
@@ -331,8 +334,10 @@ def completar_rutina(usuari_id):
     cursor.close()
     conn.close()
 
-    return redirect(url_for("user_progress", usuari_id=usuari_id))
+    # 🔥 Guardar estadísticas en MongoDB
+    guardar_estadistiques(usuari_id=usuari_id, calories_totals=calorias_totales_dia)
 
+    return redirect(url_for("user_progress", usuari_id=usuari_id))
 
 
 # --------------------------
