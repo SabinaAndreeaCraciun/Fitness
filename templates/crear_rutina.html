@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='crear_rutina.css') }}">
 </head>
 <body>
-    <!-- Barra de navegación -->
+    <!-- Barra de navegació -->
     <header>
         <nav class="navbar">
             <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
@@ -24,7 +24,7 @@
         </nav>
     </header>
 
-    <!-- Contenido principal -->
+    <!-- Contenigut principal -->
     <main>
         <section class="form-section">
             <h1>Crear una nueva rutina</h1>
@@ -35,7 +35,7 @@
 
             <form action="{{ url_for('crear_rutina') }}" method="POST" class="form-create-routine">
 
-                <!-- Tipo de ejercicio -->
+                <!-- Tipus de exercici -->
                 <div class="form-group">
                     <label for="tipus">Tipo de Ejercicio:</label>
                     <select id="tipus" name="tipus" required>
@@ -45,7 +45,7 @@
                     </select>
                 </div>
 
-                <!-- Grupo muscular -->
+                <!-- Grup muscular -->
                 <div class="form-group" id="grup-muscular">
                     <label for="estimul">Grupo muscular:</label>
                     <select id="estimul" name="estimul" required>
@@ -63,7 +63,7 @@
                     </select>
                 </div>
 
-                <!-- Nombre del ejercicio -->
+                <!-- Nom del exercici -->
                 <div class="form-group">
                     <label for="exercici">Nombre del Ejercicio:</label>
                     <input type="text" id="exercici" name="exercici" placeholder="Ej: Correr, Sentadillas, etc." required>
@@ -75,31 +75,31 @@
                     <input type="number" id="series" name="series" min="1" required>
                 </div>
 
-                <!-- Número de repeticiones -->
+                <!-- Número de repeticions -->
                 <div class="form-group">
                     <label for="repeticions">Número de Repeticiones:</label>
                     <input type="number" id="repeticions" name="repeticions" min="1" required>
                 </div>
 
-                <!-- Botón principal -->
+                <!-- Botó principal -->
                 <div class="form-group">
                     <button type="submit" class="btn-submit">Crear Rutina</button>
                 </div>
 
-                <!-- Botones adicionales -->
+                <!-- Botons adicionals -->
                 <div class="form-buttons" style="margin-top:20px;">
                     <button type="button" class="btn-submit" onclick="afegirExercici()">Añadir Ejercicio</button>
                     <button type="button" class="btn-submit" onclick="editarExercici()">Editar Ejercicio</button>
                     <button type="button" class="btn-submit" onclick="suprimirExercici()">Suprimir Ejercicio</button>
                 </div>
 
-                <!-- Lista de ejercicios -->
+                <!-- Llista de exercicis -->
                 <div class="form-group2">
                     <h3>Ejercicio añadido:</h3>
                     <ul id="llistaExercicis"></ul>
                 </div>
 
-                <!-- Campo oculto -->
+                <!-- Camp ocult -->
                 <input type="hidden" name="exercicis_json" id="exercicis_json" />
 
             <p><a href="{{ url_for('index') }}" class="btn-back">Volver al inicio</a></p>

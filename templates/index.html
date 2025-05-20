@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 <body>
-    <!-- Barra de navegación -->
+    <!-- Barra de navegació -->
     <header>
         <nav class="navbar">
             <a href="{{ url_for('index') }}" class="logo">FitnessApp</a>
@@ -16,7 +16,7 @@
                 <li><a href="{{ url_for('crear_rutina') }}">Crear Rutina</a></li>
                 <li><a href="{{ url_for('user_progress', usuari_id=session['user_id']) }}">Ver Progreso</a></li>
 
-                <!-- Si el usuario está autenticado, muestra la opción de cerrar sesión -->
+                <!-- Si el usuari está autenticat, mostra l'opció de tancar sessio -->
                 {% if session.get('user_id') %}
                     <li><a href="{{ url_for('logout') }}" class="btn-logout">Cerrar sesión</a></li>
                 {% else %}
@@ -26,7 +26,7 @@
         </nav>
     </header>
   
-    <!-- Contenido principal -->
+    <!-- Contingut principal -->
     <main>
         <section class="welcome-section">
             {% if session.get('user_name') %}

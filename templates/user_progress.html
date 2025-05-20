@@ -69,7 +69,7 @@
     </div>
   {% endfor %}
 
-  <!-- Formulario agregar comentario -->
+  <!-- Formulari agregar comentaris -->
   <div class="comentario-form" id="comentario-form" style="display:none; margin-top: 30px;">
     <h3>Agregar Comentario</h3>
     <form method="POST" action="{{ url_for('user_progress', usuari_id=usuari_id) }}">
@@ -79,13 +79,13 @@
     </form>
   </div>
 
-  <!-- Comentarios existentes -->
+  <!-- Comentaris existens -->
   <div id="comentarios-existing" style="display:none; margin-top: 30px;">
     <h3>Comentarios Existentes:</h3>
     <div id="comentarios-list"></div>
   </div>
 
-  <!-- Estadísticas -->
+  <!-- Estadístiques -->
   <div id="estadisticas-existing" style="display:none; margin-top: 30px;">
     <h3>Estadísticas del Ejercicio</h3>
     <div id="estadisticas-list"></div>
@@ -105,7 +105,7 @@
 
   const objetivoCalorias = 1200;
 
-  // Agregar Comentario
+  // Agregar Comentaris
   document.querySelectorAll('.agregar-comentario').forEach(button => {
     button.addEventListener('click', () => {
       const ejercicioId = button.getAttribute('data-id');
@@ -118,7 +118,7 @@
     });
   });
 
-  // Ver Comentarios
+  // Veure Comentaris
   document.querySelectorAll('.ver-comentario').forEach(button => {
     button.addEventListener('click', () => {
       const ejercicioId = button.getAttribute('data-id');
@@ -140,7 +140,7 @@
     });
   });
 
-  // Ver Estadísticas
+  // Veure Estadístiques
   document.querySelectorAll('.ver-estadisticas').forEach(button => {
     button.addEventListener('click', () => {
       const ejercicioId = button.getAttribute('data-id');
@@ -167,7 +167,7 @@
     });
   });
 
-  // Filtro por grupo muscular
+  // Filtrar per grup muscular
   document.getElementById('filtro-grupo').addEventListener('change', function () {
     const valor = this.value;
     document.querySelectorAll('.grupo-block').forEach(block => {
