@@ -103,7 +103,7 @@
     {% endfor %}
   {% endfor %}
 
-  const objetivoCalorias = 1200;
+  const objetivoCalorias = 3200;
 
   // Agregar Comentaris
   document.querySelectorAll('.agregar-comentario').forEach(button => {
@@ -159,7 +159,7 @@
       const html = `
         <p><strong>Ejercicio:</strong> ${ejercicioId}</p>
         <p><strong>Calorías Totales:</strong> ${totalCalorias}</p>
-        <p><strong>Porcentaje del Objetivo (1200 cal):</strong> ${porcentaje}%</p>
+        <p><strong>Porcentaje del Objetivo (3200 cal):</strong> ${porcentaje}%</p>
       `;
 
       document.getElementById('estadisticas-list').innerHTML = html;
